@@ -4,41 +4,52 @@ import { useCMS } from '../context/CMSContext';
 import {
   Play,
   ArrowRight,
-  Camera,
   Film,
   Sparkles,
-  Award,
   Star,
-  CheckCircle2,
-  Calendar,
   ChevronDown,
-  Layers,
-  Heart,
   Video
 } from 'lucide-react';
+import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function Home() {
   const { navigate } = useRouter();
-  const { data } = useCMS();
-  const { siteSettings, galleryItems, services, pricingPackages, faqs, testimonials } = data;
+  const { data, currency } = useCMS();
+  const { homeContent, galleryItems, services, faqs, testimonials } = data;
 
   const [activeFaq, setActiveFaq] = useState(0);
   const [activeVideoModal, setActiveVideoModal] = useState(null);
 
-  // Featured photos and YouTube videos
+  // Fallbacks for homeContent in case of partial saves
+  const hc = homeContent || {
+    badge: "Award-Winning Photography & 4K YouTube Cinematography",
+    headlinePart1: "Every Frame a",
+    headlineGradient: "Masterpiece",
+    description: "We capture weddings, brand commercials, and editorial stories with Hollywood cinema gear and timeless soul.",
+    heroImage: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80",
+    primaryCtaText: "Reserve Shoot Date",
+    secondaryCtaText: "Watch 4K Showreel",
+    showreelYoutubeId: "LXb3EKWsInQ",
+    stats: [
+      { id: "s1", value: "650+", label: "Shoots Completed" },
+      { id: "s2", value: "10+", label: "Years Experience" },
+      { id: "s3", value: "4K / 8K", label: "Cine Line Gear" },
+      { id: "s4", value: "100%", label: "Client Love" }
+    ]
+  };
+
   const featuredPhotos = galleryItems.filter(i => i.type === 'photo').slice(0, 4);
   const featuredVideos = galleryItems.filter(i => i.type === 'video').slice(0, 2);
 
   return (
     <div className="w-full">
       
-      {/* 1. Hero Section */}
+      {/* 1. Hero Section (Controlled via CMS Homepage Manager) */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-black text-white px-4 sm:px-6 lg:px-8 py-20">
-        {/* Background Overlay Image with Cinematic Vignette */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80"
-            alt="Panda Creative Cinematic Wedding and Commercial Cinematography Background"
+            src={hc.heroImage}
+            alt="Panda Creative Cinematic Background"
             className="w-full h-full object-cover opacity-35 filter brightness-75 scale-105 animate-pulse-subtle"
             loading="eager"
           />
@@ -46,21 +57,22 @@ export default function Home() {
           <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/40 to-black/80" />
         </div>
 
-        {/* Hero Content */}
         <div className="relative z-10 max-w-5xl mx-auto text-center space-y-6">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900/80 border border-bamboo-500/30 text-bamboo-400 text-xs sm:text-sm font-medium backdrop-blur-md animate-fade-in shadow-lg">
             <Sparkles className="w-4 h-4 text-bamboo-400" />
-            <span>Award-Winning Photography &amp; 4K YouTube Cinematography</span>
+            <span>{hc.badge}</span>
           </div>
 
           {/* SINGLE H1 TAG PER PAGE FOR SEO */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight font-serif">
-            Every Frame a <span className="text-transparent bg-clip-text bg-gradient-to-r from-bamboo-400 via-emerald-300 to-white">Masterpiece</span>.
+            {hc.headlinePart1}{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-bamboo-400 via-emerald-300 to-white">
+              {hc.headlineGradient}
+            </span>.
           </h1>
 
           <p className="text-base sm:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed font-light">
-            We capture weddings, brand commercials, and editorial stories with Hollywood cinema gear and timeless soul.
+            {hc.description}
           </p>
 
           {/* Hero CTAs */}
@@ -69,43 +81,33 @@ export default function Home() {
               onClick={() => navigate('/contacts')}
               className="btn-panda-primary text-sm sm:text-base px-8 py-4 uppercase tracking-wider font-semibold group shadow-xl"
             >
-              <span>Reserve Shoot Date</span>
+              <span>{hc.primaryCtaText || "Reserve Shoot Date"}</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
 
             <button
               onClick={() => {
-                if (featuredVideos.length > 0) {
-                  setActiveVideoModal(featuredVideos[0]);
-                } else {
-                  navigate('/gallery');
-                }
+                setActiveVideoModal({
+                  title: hc.showreelTitle || "4K Master Showreel",
+                  youtubeId: hc.showreelYoutubeId || "LXb3EKWsInQ",
+                  description: "4K Sony FX6 & RED Cinema Showreel streamed through YouTube."
+                });
               }}
               className="btn-panda-secondary text-sm sm:text-base px-7 py-4 group"
             >
               <Play className="w-4 h-4 text-bamboo-400 fill-bamboo-400 transition-transform group-hover:scale-110" />
-              <span>Watch 4K Showreel</span>
+              <span>{hc.secondaryCtaText || "Watch 4K Showreel"}</span>
             </button>
           </div>
 
-          {/* Quick Stats Banner */}
+          {/* Dynamic Stats Banner from CMS */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-12 border-t border-zinc-800/80 max-w-3xl mx-auto text-zinc-400">
-            <div>
-              <span className="block text-2xl sm:text-3xl font-bold text-white font-serif">650+</span>
-              <span className="text-xs uppercase tracking-wider">Shoots Completed</span>
-            </div>
-            <div>
-              <span className="block text-2xl sm:text-3xl font-bold text-white font-serif">10+</span>
-              <span className="text-xs uppercase tracking-wider">Years Experience</span>
-            </div>
-            <div>
-              <span className="block text-2xl sm:text-3xl font-bold text-white font-serif">4K / 8K</span>
-              <span className="text-xs uppercase tracking-wider">Cine Line Gear</span>
-            </div>
-            <div>
-              <span className="block text-2xl sm:text-3xl font-bold text-white font-serif">100%</span>
-              <span className="text-xs uppercase tracking-wider">Client Love</span>
-            </div>
+            {hc.stats?.map((stat) => (
+              <div key={stat.id}>
+                <span className="block text-2xl sm:text-3xl font-bold text-white font-serif">{stat.value}</span>
+                <span className="text-xs uppercase tracking-wider">{stat.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -130,7 +132,6 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Photography Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredPhotos.map((photo) => (
             <div
@@ -165,7 +166,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. YouTube Cinematic Films Showcase (User requirement: videos uploaded through YouTube) */}
+      {/* 3. YouTube Cinematic Films Showcase */}
       <section className="py-20 bg-zinc-950 text-white border-y border-zinc-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">
@@ -186,7 +187,6 @@ export default function Home() {
                 key={video.id}
                 className="bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl group flex flex-col"
               >
-                {/* YouTube Video Embed Player */}
                 <div className="video-responsive-container bg-black">
                   <iframe
                     src={`https://www.youtube.com/embed/${video.youtubeId}?rel=0&modestbranding=1`}
@@ -197,7 +197,6 @@ export default function Home() {
                   />
                 </div>
 
-                {/* Video Info */}
                 <div className="p-6 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between text-xs text-bamboo-400 font-semibold mb-2">
@@ -239,7 +238,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. Services Teaser */}
+      {/* 4. Services Teaser (With USD / TZS Price Rendering) */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-bamboo-500 mb-2 block">
@@ -254,36 +253,40 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.slice(0, 3).map((svc) => (
-            <div
-              key={svc.id}
-              className="p-8 rounded-3xl bg-zinc-50 dark:bg-[#121316] border border-zinc-200 dark:border-zinc-800/80 hover:border-bamboo-500/50 transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-xl group flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-bamboo-500/10 text-bamboo-500 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-bamboo-500 group-hover:text-white transition-all">
-                  <Film className="w-6 h-6" />
-                </div>
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-3">
-                  {svc.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
-                  {svc.shortDesc}
-                </p>
-              </div>
+          {services.slice(0, 3).map((svc) => {
+            const price = currency === 'TZS' ? svc.startingPriceTZS : svc.startingPriceUSD;
 
-              <div>
-                <span className="text-xs font-bold text-bamboo-500 block mb-4">
-                  Starting at {svc.startingPrice}
-                </span>
-                <button
-                  onClick={() => navigate('/services')}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-bamboo-500 hover:text-white transition-colors"
-                >
-                  View Deliverables &amp; Details
-                </button>
+            return (
+              <div
+                key={svc.id}
+                className="p-8 rounded-3xl bg-zinc-50 dark:bg-[#121316] border border-zinc-200 dark:border-zinc-800/80 hover:border-bamboo-500/50 transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-xl group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-12 h-12 rounded-2xl bg-bamboo-500/10 text-bamboo-500 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-bamboo-500 group-hover:text-white transition-all">
+                    <Film className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-3">
+                    {svc.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6">
+                    {svc.shortDesc}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="text-xs font-bold text-bamboo-500 block mb-4">
+                    Starting at {price} ({currency})
+                  </span>
+                  <button
+                    onClick={() => navigate('/services')}
+                    className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-bamboo-500 hover:text-white transition-colors"
+                  >
+                    View Deliverables &amp; Details
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -384,7 +387,7 @@ export default function Home() {
               Ready to Craft Your Visual Story?
             </h2>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-              Contact our directors today to check studio availability, request a custom quote, or schedule an in-person or video consultation.
+              Contact our directors today to check studio availability, request an exact proposal in USD or TZS, or schedule a consultation.
             </p>
             <div className="pt-4 flex flex-wrap justify-center gap-3">
               <button
@@ -397,7 +400,7 @@ export default function Home() {
                 onClick={() => navigate('/pricing')}
                 className="btn-panda-secondary px-7 py-3.5 text-xs sm:text-sm"
               >
-                View Pricing Packages
+                View Pricing (USD &amp; TZS)
               </button>
             </div>
           </div>

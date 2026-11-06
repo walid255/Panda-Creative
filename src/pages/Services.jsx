@@ -1,11 +1,12 @@
 import React from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
-import { Film, Camera, HeartHandshake, Plane, Disc, Sliders, CheckCircle2, ArrowRight, Clock, DollarSign, Sparkles } from 'lucide-react';
+import { Film, Camera, HeartHandshake, Plane, Disc, Sliders, CheckCircle2, Clock, DollarSign, Sparkles } from 'lucide-react';
+import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function Services() {
   const { navigate } = useRouter();
-  const { data } = useCMS();
+  const { data, currency } = useCMS();
   const { services } = data;
 
   const getServiceIcon = (iconName) => {
@@ -66,64 +67,78 @@ export default function Services() {
         <p className="text-xs sm:text-base text-zinc-600 dark:text-zinc-400 mt-3 leading-relaxed">
           From multi-day luxury destination weddings to global commercial campaigns, explore our complete suite of cinema and photographic disciplines.
         </p>
+
+        {/* Currency Switcher */}
+        <div className="mt-6 inline-flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold pl-2">Displaying in:</span>
+          <CurrencySwitcher />
+        </div>
       </div>
 
       {/* Services List */}
       <div className="space-y-12">
-        {services.map((svc, idx) => (
-          <div
-            key={svc.id}
-            className={`p-8 sm:p-10 rounded-3xl bg-zinc-50 dark:bg-[#121316] border border-zinc-200 dark:border-zinc-800 shadow-sm hover:border-bamboo-500/50 transition-all duration-300 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start`}
-          >
-            {/* Col 1: Overview */}
-            <div className="lg:col-span-1 space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
-                {getServiceIcon(svc.icon)}
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
-                {svc.title}
-              </h2>
-              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                {svc.fullDesc || svc.shortDesc}
-              </p>
-              
-              <div className="pt-2 flex flex-col gap-1.5 text-xs">
-                <span className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                  <Clock className="w-4 h-4 text-bamboo-500" />
-                  <span>Coverage: <strong>{svc.duration}</strong></span>
-                </span>
-                <span className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
-                  <DollarSign className="w-4 h-4 text-bamboo-500" />
-                  <span>Investment: <strong className="text-bamboo-500 font-bold">{svc.startingPrice}</strong></span>
-                </span>
-              </div>
+        {services.map((svc) => {
+          const startingPrice = currency === 'TZS' ? svc.startingPriceTZS : svc.startingPriceUSD;
+          const altStartingPrice = currency === 'TZS' ? svc.startingPriceUSD : svc.startingPriceTZS;
 
-              <div className="pt-4">
-                <button
-                  onClick={() => navigate('/contacts')}
-                  className="btn-panda-primary text-xs py-2.5 px-6 uppercase tracking-wider font-semibold"
-                >
-                  Book This Service
-                </button>
-              </div>
-            </div>
-
-            {/* Col 2 & 3: Deliverables */}
-            <div className="lg:col-span-2 bg-white dark:bg-[#0c0d0f] p-6 sm:p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-4">
-                What Is Included &amp; Deliverables
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {svc.deliverables.map((del, dIdx) => (
-                  <div key={dIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">
-                    <CheckCircle2 className="w-4 h-4 text-bamboo-500 shrink-0 mt-0.5" />
-                    <span>{del}</span>
+          return (
+            <div
+              key={svc.id}
+              className="p-8 sm:p-10 rounded-3xl bg-zinc-50 dark:bg-[#121316] border border-zinc-200 dark:border-zinc-800 shadow-sm hover:border-bamboo-500/50 transition-all duration-300 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start"
+            >
+              {/* Col 1: Overview */}
+              <div className="lg:col-span-1 space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
+                  {getServiceIcon(svc.icon)}
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
+                  {svc.title}
+                </h2>
+                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  {svc.fullDesc || svc.shortDesc}
+                </p>
+                
+                <div className="pt-2 flex flex-col gap-1.5 text-xs">
+                  <span className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
+                    <Clock className="w-4 h-4 text-bamboo-500" />
+                    <span>Coverage: <strong>{svc.duration}</strong></span>
+                  </span>
+                  <div className="flex items-baseline gap-2 text-zinc-500 dark:text-zinc-400">
+                    <DollarSign className="w-4 h-4 text-bamboo-500 shrink-0 self-center" />
+                    <div>
+                      <span>Starting at <strong className="text-bamboo-500 font-bold text-sm sm:text-base">{startingPrice}</strong></span>
+                      <span className="text-[11px] text-zinc-400 block font-mono">({altStartingPrice})</span>
+                    </div>
                   </div>
-                ))}
+                </div>
+
+                <div className="pt-4">
+                  <button
+                    onClick={() => navigate('/contacts')}
+                    className="btn-panda-primary text-xs py-2.5 px-6 uppercase tracking-wider font-semibold"
+                  >
+                    Book This Service
+                  </button>
+                </div>
+              </div>
+
+              {/* Col 2 & 3: Deliverables */}
+              <div className="lg:col-span-2 bg-white dark:bg-[#0c0d0f] p-6 sm:p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-4">
+                  What Is Included &amp; Deliverables
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {svc.deliverables.map((del, dIdx) => (
+                    <div key={dIdx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300">
+                      <CheckCircle2 className="w-4 h-4 text-bamboo-500 shrink-0 mt-0.5" />
+                      <span>{del}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Production Workflow Section */}

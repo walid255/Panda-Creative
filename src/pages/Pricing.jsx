@@ -1,21 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
-import { Check, Sparkles, Printer, ArrowRight, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Check, Sparkles, Printer, ShieldCheck, ArrowRight } from 'lucide-react';
+import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function Pricing() {
   const { navigate } = useRouter();
-  const { data } = useCMS();
-  const { pricingPackages } = data;
-
-  const [billingType, setBillingType] = useState('full'); // full / installment
-
-  const addOns = [
-    { name: "FAA Drone Aerial Cinematography Add-on", price: "$650", desc: "Dual operator 8K aerials for ceremony & venue establishers" },
-    { name: "RAW Master Footage Hard Drive (2TB Rugged SSD)", price: "$450", desc: "Every unedited take, audio scratch, and B-roll file shipped to your door" },
-    { name: "Rush Turnaround Guarantee (7 Business Days)", price: "$800", desc: "Jump straight to the front of the editing queue for immediate YouTube release" },
-    { name: "Rehearsal Dinner / Welcome Party Coverage (3 Hours)", price: "$950", desc: "Candid photography and speeches from the eve of your wedding" }
-  ];
+  const { data, currency, formatPrice } = useCMS();
+  const { pricingPackages, pricingAddOns } = data;
 
   return (
     <div className="w-full py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -32,19 +24,24 @@ export default function Pricing() {
             Transparent Pricing &amp; Cinema Packages
           </h1>
           <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2 max-w-xl">
-            Zero hidden travel surcharges or surprise licensing fees. Every package includes high-res stills and 4K YouTube cinematic highlight films.
+            Zero hidden travel surcharges or surprise licensing fees. All packages priced exclusively in <strong>USD ($)</strong> and <strong>TZS (TSh)</strong>.
           </p>
         </div>
 
-        {/* Print button */}
-        <div className="mt-4 md:mt-0 flex items-center gap-3">
+        {/* Currency Switcher & Print Button */}
+        <div className="mt-6 md:mt-0 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold pl-2">Currency:</span>
+            <CurrencySwitcher />
+          </div>
+
           <button
             onClick={() => window.print()}
             type="button"
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700/60 transition-colors allow-print"
           >
             <Printer className="w-3.5 h-3.5" />
-            <span>Print Pricing Guide (PDF)</span>
+            <span>Print Guide (PDF)</span>
           </button>
         </div>
       </div>
@@ -53,6 +50,8 @@ export default function Pricing() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
         {pricingPackages.map((pkg) => {
           const isPopular = pkg.popular;
+          const displayPrice = currency === 'TZS' ? pkg.priceTZS : pkg.priceUSD;
+          const altPrice = currency === 'TZS' ? pkg.priceUSD : pkg.priceTZS;
 
           return (
             <div
@@ -77,6 +76,9 @@ export default function Pricing() {
                   }`}>
                     {pkg.badge}
                   </span>
+                  <span className="text-[11px] font-mono text-zinc-500">
+                    {currency === 'TZS' ? 'Tanzanian Shillings' : 'US Dollars'}
+                  </span>
                 </div>
 
                 <h2 className="text-2xl font-bold font-serif mb-2">
@@ -86,11 +88,17 @@ export default function Pricing() {
                   {pkg.subtitle}
                 </p>
 
-                <div className="mb-6 pb-6 border-b border-zinc-200 dark:border-zinc-800 flex items-baseline gap-1">
-                  <span className="text-4xl sm:text-5xl font-extrabold font-serif">
-                    {pkg.price}
+                <div className="mb-6 pb-6 border-b border-zinc-200 dark:border-zinc-800">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl sm:text-4xl font-extrabold font-serif">
+                      {displayPrice}
+                    </span>
+                    <span className="text-xs text-zinc-500">/ project</span>
+                  </div>
+                  {/* Secondary currency preview */}
+                  <span className="text-[11px] text-zinc-400 block mt-1">
+                    or {altPrice}
                   </span>
-                  <span className="text-xs text-zinc-500">/ project</span>
                 </div>
 
                 {/* Features List */}
@@ -117,7 +125,7 @@ export default function Pricing() {
                       : 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:bg-bamboo-500 dark:hover:bg-bamboo-500 dark:hover:text-white'
                   }`}
                 >
-                  Reserve This Package
+                  Reserve This Package ({currency})
                 </button>
               </div>
             </div>
@@ -128,28 +136,38 @@ export default function Pricing() {
       {/* Production Add-ons Section */}
       <section className="mt-20 pt-16 border-t border-zinc-200 dark:border-zinc-800">
         <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-serif mb-6 text-center">
-          Optional Production Enhancements
+          Optional Production Enhancements (USD &amp; TZS)
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-          {addOns.map((addon, idx) => (
-            <div
-              key={idx}
-              className="p-5 rounded-2xl bg-zinc-50 dark:bg-[#121316] border border-zinc-200 dark:border-zinc-800 flex items-center justify-between"
-            >
-              <div>
-                <h4 className="text-sm font-bold text-zinc-900 dark:text-white">
-                  {addon.name}
-                </h4>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  {addon.desc}
-                </p>
+          {(pricingAddOns || []).map((addon) => {
+            const displayAddonPrice = currency === 'TZS' ? addon.priceTZS : addon.priceUSD;
+            const altAddonPrice = currency === 'TZS' ? addon.priceUSD : addon.priceTZS;
+
+            return (
+              <div
+                key={addon.id}
+                className="p-5 rounded-2xl bg-zinc-50 dark:bg-[#121316] border border-zinc-200 dark:border-zinc-800 flex items-center justify-between"
+              >
+                <div>
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-white">
+                    {addon.name}
+                  </h4>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    {addon.desc}
+                  </p>
+                </div>
+                <div className="text-right ml-4 shrink-0">
+                  <span className="text-sm font-bold text-bamboo-500 font-mono block">
+                    {displayAddonPrice}
+                  </span>
+                  <span className="text-[10px] text-zinc-400 block font-mono">
+                    ({altAddonPrice})
+                  </span>
+                </div>
               </div>
-              <span className="text-sm font-bold text-bamboo-500 ml-4 shrink-0 font-mono">
-                {addon.price}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -157,10 +175,10 @@ export default function Pricing() {
       <div className="mt-14 p-6 rounded-2xl bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 max-w-3xl mx-auto text-center space-y-2 text-xs text-zinc-500">
         <div className="flex items-center justify-center gap-1.5 text-bamboo-500 font-semibold">
           <ShieldCheck className="w-4 h-4" />
-          <span>Payment Schedule &amp; Guarantee</span>
+          <span>Payment Schedule &amp; Currency Guarantee</span>
         </div>
         <p>
-          Retainer of 30% reserves your date exclusively on our calendar. The remaining balance is split: 40% due 30 days prior to shoot, and 30% upon delivery of your 4K master films.
+          We accept local bank transfers in Tanzanian Shillings (TZS) via CRDB, NMB, or mobile money (M-Pesa / Tigo Pesa), and international payments in USD via Stripe or Wire Transfer. Retainer of 30% reserves your date.
         </p>
       </div>
 

@@ -3,6 +3,7 @@ import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
 import { X, ChevronDown, Phone, Mail, Sun, Moon, Search } from 'lucide-react';
 import { InstagramIcon, YoutubeIcon, WhatsAppIcon } from './SocialIcons';
+import CurrencySwitcher from './CurrencySwitcher';
 
 export default function MobileMenu({ isOpen, onClose }) {
   const { currentPath, navigate } = useRouter();
@@ -27,7 +28,6 @@ export default function MobileMenu({ isOpen, onClose }) {
         aria-modal="true"
         aria-label="Mobile Navigation Menu"
       >
-        {/* Top Header */}
         <div>
           <div className="flex items-center justify-between pb-6 border-b border-zinc-800">
             <img
@@ -46,25 +46,32 @@ export default function MobileMenu({ isOpen, onClose }) {
             </button>
           </div>
 
-          {/* Quick Actions in Mobile Menu */}
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            <button
-              onClick={() => {
-                onClose();
-                openSearch();
-              }}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
-            >
-              <Search className="w-3.5 h-3.5 text-bamboo-400" />
-              <span>Search</span>
-            </button>
-            <button
-              onClick={toggleDarkMode}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
-            >
-              {darkMode ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5" />}
-              <span>{darkMode ? 'Light' : 'Dark'} Mode</span>
-            </button>
+          {/* Quick Actions in Mobile Menu: Currency Switcher & Dark Mode & Search */}
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
+              <span className="text-xs text-zinc-400 font-semibold">Pricing Currency:</span>
+              <CurrencySwitcher />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  onClose();
+                  openSearch();
+                }}
+                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
+              >
+                <Search className="w-3.5 h-3.5 text-bamboo-400" />
+                <span>Search</span>
+              </button>
+              <button
+                onClick={toggleDarkMode}
+                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
+              >
+                {darkMode ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5" />}
+                <span>{darkMode ? 'Light' : 'Dark'}</span>
+              </button>
+            </div>
           </div>
 
           {/* Nav Links */}
@@ -126,7 +133,7 @@ export default function MobileMenu({ isOpen, onClose }) {
                 isActive('/pricing') ? 'bg-bamboo-500 text-white' : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'
               }`}
             >
-              Pricing
+              Pricing (USD &amp; TZS)
             </button>
 
             <button

@@ -3,19 +3,18 @@ import { initialData } from '../data/initialData';
 
 const CMSContext = createContext(null);
 
-const STORAGE_KEY = 'panda_creative_cms_data_v1';
+const STORAGE_KEY = 'panda_creative_cms_data_v2';
 const AUTH_KEY = 'panda_creative_admin_auth_v1';
 const COOKIE_KEY = 'panda_creative_cookie_consent_v1';
+const CURRENCY_KEY = 'panda_creative_currency_v1';
 
 // Helper to extract YouTube ID from diverse formats
 export function extractYouTubeId(urlOrId) {
   if (!urlOrId) return '';
   const trimmed = urlOrId.trim();
-  // If it's already an 11-char ID without special URL characters
   if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
     return trimmed;
   }
-  // Try regex for various YouTube URL formats
   const match = trimmed.match(
     /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
   );
@@ -29,7 +28,6 @@ export function CMSProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Ensure all top-level keys exist by merging with initialData
         return { ...initialData, ...parsed };
       }
     } catch (e) {
@@ -38,7 +36,6 @@ export function CMSProvider({ children }) {
     return initialData;
   });
 
-  // Save to localStorage whenever data changes
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -47,7 +44,22 @@ export function CMSProvider({ children }) {
     }
   }, [data]);
 
-  // 2. Dark Mode Toggle
+  // 2. Dual Currency Switcher (TZS and USD ONLY)
+  const [currency, setCurrencyState] = useState(() => {
+    return localStorage.getItem(CURRENCY_KEY) || data.currency || 'USD';
+  });
+
+  const setCurrency = (curr) => {
+    const valid = curr === 'TZS' ? 'TZS' : 'USD';
+    setCurrencyState(valid);
+    localStorage.setItem(CURRENCY_KEY, valid);
+  };
+
+  const formatPrice = (usdStr, tzsStr) => {
+    return currency === 'TZS' ? (tzsStr || usdStr) : (usdStr || tzsStr);
+  };
+
+  // 3. Dark Mode Toggle
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('panda_theme_dark');
     if (saved !== null) {
@@ -68,7 +80,7 @@ export function CMSProvider({ children }) {
 
   const toggleDarkMode = () => setDarkMode(prev => !prev);
 
-  // 3. Admin Authentication
+  // 4. Admin Authentication
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
     return sessionStorage.getItem(AUTH_KEY) === 'true';
   });
@@ -81,7 +93,7 @@ export function CMSProvider({ children }) {
       showToast('Welcome back, Admin!', 'success');
       return true;
     } else {
-      showToast('Incorrect password. Default demo is "panda"', 'error');
+      showToast('Incorrect passcode. Default demo is "panda"', 'error');
       return false;
     }
   };
@@ -92,8 +104,8 @@ export function CMSProvider({ children }) {
     showToast('Logged out of Admin CMS', 'info');
   };
 
-  // 4. UTM Tracker: Extract and preserve marketing parameters
-  const [utmParams, setUtmParams] = useState(() => {
+  // 5. UTM Tracker
+  const [utmParams] = useState(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const utm = {};
@@ -112,7 +124,7 @@ export function CMSProvider({ children }) {
     }
   });
 
-  // 5. Toast Notifications
+  // 6. Toast Notifications
   const [toasts, setToasts] = useState([]);
   const showToast = (message, type = 'success') => {
     const id = Date.now() + Math.random().toString(36).substring(2, 6);
@@ -126,7 +138,7 @@ export function CMSProvider({ children }) {
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
-  // 6. Confirmation Modal State
+  // 7. Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     title: '',
@@ -156,12 +168,11 @@ export function CMSProvider({ children }) {
     setConfirmModal(prev => ({ ...prev, isOpen: false }));
   };
 
-  // 7. Full-Site Search Modal State
+  // 8. Full-Site Search Modal
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const openSearch = () => setIsSearchOpen(true);
   const closeSearch = () => setIsSearchOpen(false);
 
-  // Keyboard shortcut Ctrl+K / Cmd+K to open search
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -176,7 +187,7 @@ export function CMSProvider({ children }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSearchOpen]);
 
-  // 8. Cookie Consent State
+  // 9. Cookie Consent State
   const [cookieConsent, setCookieConsentState] = useState(() => {
     return localStorage.getItem(COOKIE_KEY);
   });
@@ -189,30 +200,205 @@ export function CMSProvider({ children }) {
     }
   };
 
-  // 9. CMS CRUD Actions
-  // Site Settings
-  const updateSiteSettings = (newSettings) => {
+  // ==========================================
+  // CMS CRUD & MANAGEMENT ACTIONS
+  // ==========================================
+
+  // HOMEPAGE MANAGEMENT
+  const updateHomeContent = (newHomeContent) => {
     setData(prev => ({
       ...prev,
-      siteSettings: { ...prev.siteSettings, ...newSettings }
+      homeContent: { ...prev.homeContent, ...newHomeContent }
     }));
-    showToast('Site settings updated successfully');
+    showToast('Homepage hero, showreel & stats updated!');
   };
 
-  // Social Links
-  const updateSocialLinks = (newLinks) => {
-    setData(prev => ({ ...prev, socialLinks: newLinks }));
-    showToast('Social network links updated');
+  // ABOUT US MANAGEMENT
+  const updateAboutContent = (newAboutContent) => {
+    setData(prev => ({
+      ...prev,
+      aboutContent: { ...prev.aboutContent, ...newAboutContent }
+    }));
+    showToast('About Us story, vision & quotes updated!');
   };
 
-  // Gallery CRUD
+  // CAMERA GEAR ARSENAL CRUD
+  const addGearItem = (gear) => {
+    const newGear = { ...gear, id: `g-${Date.now()}` };
+    setData(prev => ({
+      ...prev,
+      aboutContent: {
+        ...prev.aboutContent,
+        gearList: [...(prev.aboutContent.gearList || []), newGear]
+      }
+    }));
+    showToast('Camera equipment added');
+  };
+
+  const updateGearItem = (id, updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      aboutContent: {
+        ...prev.aboutContent,
+        gearList: prev.aboutContent.gearList.map(g => g.id === id ? { ...g, ...updatedFields } : g)
+      }
+    }));
+    showToast('Equipment updated');
+  };
+
+  const deleteGearItem = (id) => {
+    setData(prev => ({
+      ...prev,
+      aboutContent: {
+        ...prev.aboutContent,
+        gearList: prev.aboutContent.gearList.filter(g => g.id !== id)
+      }
+    }));
+    showToast('Equipment removed');
+  };
+
+  // PORTFOLIO SHOWCASE CRUD
+  const addPortfolioItem = (item) => {
+    const newItem = {
+      ...item,
+      id: `port-${Date.now()}`
+    };
+    if (newItem.type === 'video') {
+      const ytId = extractYouTubeId(newItem.youtubeId || newItem.youtubeUrl);
+      newItem.youtubeId = ytId;
+      newItem.youtubeUrl = `https://www.youtube.com/watch?v=${ytId}`;
+      if (!newItem.thumbnail) {
+        newItem.thumbnail = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
+      }
+    }
+    setData(prev => ({
+      ...prev,
+      portfolioItems: [newItem, ...(prev.portfolioItems || [])]
+    }));
+    showToast('Project added to Portfolio showcase!');
+  };
+
+  const updatePortfolioItem = (id, updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      portfolioItems: (prev.portfolioItems || []).map(item => {
+        if (item.id === id) {
+          const merged = { ...item, ...updatedFields };
+          if (merged.type === 'video') {
+            const ytId = extractYouTubeId(merged.youtubeId || merged.youtubeUrl);
+            merged.youtubeId = ytId;
+            merged.youtubeUrl = `https://www.youtube.com/watch?v=${ytId}`;
+            if (!merged.thumbnail || merged.thumbnail.includes('img.youtube.com')) {
+              merged.thumbnail = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
+            }
+          }
+          return merged;
+        }
+        return item;
+      })
+    }));
+    showToast('Portfolio project updated');
+  };
+
+  const deletePortfolioItem = (id) => {
+    setData(prev => ({
+      ...prev,
+      portfolioItems: (prev.portfolioItems || []).filter(item => item.id !== id)
+    }));
+    showToast('Project removed from Portfolio', 'info');
+  };
+
+  // SERVICES CRUD (With starting prices in USD & TZS)
+  const addService = (service) => {
+    const newService = {
+      ...service,
+      id: `svc-${Date.now()}`
+    };
+    setData(prev => ({
+      ...prev,
+      services: [...prev.services, newService]
+    }));
+    showToast('New service added');
+  };
+
+  const updateService = (id, updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      services: prev.services.map(s => s.id === id ? { ...s, ...updatedFields } : s)
+    }));
+    showToast('Service & pricing updated');
+  };
+
+  const deleteService = (id) => {
+    setData(prev => ({
+      ...prev,
+      services: prev.services.filter(s => s.id !== id)
+    }));
+    showToast('Service deleted', 'info');
+  };
+
+  // PRICING PACKAGES CRUD (With prices strictly in USD and TZS)
+  const addPricingPackage = (pkg) => {
+    const newPkg = {
+      ...pkg,
+      id: `tier-${Date.now()}`
+    };
+    setData(prev => ({
+      ...prev,
+      pricingPackages: [...prev.pricingPackages, newPkg]
+    }));
+    showToast('New pricing tier added');
+  };
+
+  const updatePricingPackage = (id, updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      pricingPackages: prev.pricingPackages.map(p => p.id === id ? { ...p, ...updatedFields } : p)
+    }));
+    showToast('Package pricing updated in USD & TZS');
+  };
+
+  const deletePricingPackage = (id) => {
+    setData(prev => ({
+      ...prev,
+      pricingPackages: prev.pricingPackages.filter(p => p.id !== id)
+    }));
+    showToast('Pricing package removed', 'info');
+  };
+
+  // PRICING ADD-ONS CRUD
+  const addPricingAddOn = (addon) => {
+    const newAddon = { ...addon, id: `addon-${Date.now()}` };
+    setData(prev => ({
+      ...prev,
+      pricingAddOns: [...(prev.pricingAddOns || []), newAddon]
+    }));
+    showToast('Production add-on created');
+  };
+
+  const updatePricingAddOn = (id, updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      pricingAddOns: (prev.pricingAddOns || []).map(a => a.id === id ? { ...a, ...updatedFields } : a)
+    }));
+    showToast('Production add-on updated');
+  };
+
+  const deletePricingAddOn = (id) => {
+    setData(prev => ({
+      ...prev,
+      pricingAddOns: (prev.pricingAddOns || []).filter(a => a.id !== id)
+    }));
+    showToast('Production add-on removed');
+  };
+
+  // GALLERY CRUD (Fine-Art Photos and YouTube Videos)
   const addGalleryItem = (item) => {
     const newItem = {
       ...item,
       id: `${item.type}-${Date.now()}`,
       date: item.date || new Date().toISOString().split('T')[0]
     };
-    // If it's a video, format YouTube ID
     if (newItem.type === 'video') {
       const ytId = extractYouTubeId(newItem.youtubeId || newItem.youtubeUrl);
       newItem.youtubeId = ytId;
@@ -225,7 +411,7 @@ export function CMSProvider({ children }) {
       ...prev,
       galleryItems: [newItem, ...prev.galleryItems]
     }));
-    showToast(`Added new ${item.type === 'video' ? 'YouTube video' : 'photo'} to gallery!`);
+    showToast(`Added ${item.type === 'video' ? 'YouTube video' : 'photo'} to gallery!`);
   };
 
   const updateGalleryItem = (id, updatedFields) => {
@@ -258,51 +444,21 @@ export function CMSProvider({ children }) {
     showToast('Item deleted from gallery', 'info');
   };
 
-  // Services CRUD
-  const addService = (service) => {
-    const newService = {
-      ...service,
-      id: `svc-${Date.now()}`
-    };
+  // SITE SETTINGS & SOCIAL LINKS
+  const updateSiteSettings = (newSettings) => {
     setData(prev => ({
       ...prev,
-      services: [...prev.services, newService]
+      siteSettings: { ...prev.siteSettings, ...newSettings }
     }));
-    showToast('Service added');
+    showToast('Site settings & SEO updated');
   };
 
-  const updateService = (id, updatedFields) => {
-    setData(prev => ({
-      ...prev,
-      services: prev.services.map(s => s.id === id ? { ...s, ...updatedFields } : s)
-    }));
-    showToast('Service updated');
+  const updateSocialLinks = (newLinks) => {
+    setData(prev => ({ ...prev, socialLinks: newLinks }));
+    showToast('Social network links updated');
   };
 
-  const deleteService = (id) => {
-    setData(prev => ({
-      ...prev,
-      services: prev.services.filter(s => s.id !== id)
-    }));
-    showToast('Service deleted', 'info');
-  };
-
-  // Pricing Packages CRUD
-  const updatePricingPackage = (id, updatedFields) => {
-    setData(prev => ({
-      ...prev,
-      pricingPackages: prev.pricingPackages.map(p => p.id === id ? { ...p, ...updatedFields } : p)
-    }));
-    showToast('Pricing package updated');
-  };
-
-  // FAQs CRUD
-  const updateFAQs = (newFAQs) => {
-    setData(prev => ({ ...prev, faqs: newFAQs }));
-    showToast('FAQs updated');
-  };
-
-  // Inquiries
+  // INQUIRIES & NEWSLETTER
   const addInquiry = (inquiry) => {
     const newInquiry = {
       ...inquiry,
@@ -310,6 +466,7 @@ export function CMSProvider({ children }) {
       date: new Date().toISOString().split('T')[0],
       utmSource: utmParams.utm_source || 'direct',
       utmCampaign: utmParams.utm_campaign || 'organic',
+      currency,
       status: 'New'
     };
     setData(prev => ({
@@ -324,7 +481,7 @@ export function CMSProvider({ children }) {
       ...prev,
       inquiries: prev.inquiries.map(i => i.id === id ? { ...i, status } : i)
     }));
-    showToast(`Inquiry status changed to ${status}`);
+    showToast(`Inquiry status updated to ${status}`);
   };
 
   const deleteInquiry = (id) => {
@@ -335,7 +492,6 @@ export function CMSProvider({ children }) {
     showToast('Inquiry removed');
   };
 
-  // Newsletter Subscribers
   const addNewsletterSubscriber = (email, source = 'general') => {
     if (!email || !email.includes('@')) {
       showToast('Please enter a valid email address', 'error');
@@ -356,17 +512,16 @@ export function CMSProvider({ children }) {
       ...prev,
       newsletterSubscribers: [newSub, ...(prev.newsletterSubscribers || [])]
     }));
-    showToast('Subscribed! Check your inbox soon for exclusive cinematography reels & tips.', 'success');
+    showToast('Subscribed to VIP Cinema Newsletter!', 'success');
     return true;
   };
 
-  // Backlink Strategy Update
   const updateBacklinkStrategy = (newStrategy) => {
     setData(prev => ({ ...prev, backlinkStrategy: newStrategy }));
     showToast('Backlink strategy updated');
   };
 
-  // Data Export / Import / Reset
+  // BACKUP EXPORT & IMPORT
   const exportData = () => {
     try {
       const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
@@ -389,7 +544,7 @@ export function CMSProvider({ children }) {
         showToast('Invalid backup format', 'error');
         return false;
       }
-      setData(parsed);
+      setData({ ...initialData, ...parsed });
       showToast('CMS Data successfully restored from backup!');
       return true;
     } catch {
@@ -401,7 +556,7 @@ export function CMSProvider({ children }) {
   const resetToDefaults = () => {
     requestConfirmation({
       title: 'Reset CMS to Defaults?',
-      message: 'This will restore the original demo photography, YouTube videos, services, and pricing. All your customized items will be reset.',
+      message: 'This will restore all default homepage, about us, portfolio, services, and pricing data (in USD and TZS).',
       confirmText: 'Reset Everything',
       isDanger: true,
       onConfirm: () => {
@@ -416,6 +571,9 @@ export function CMSProvider({ children }) {
     <CMSContext.Provider
       value={{
         data,
+        currency,
+        setCurrency,
+        formatPrice,
         darkMode,
         toggleDarkMode,
         isAdminLoggedIn,
@@ -433,16 +591,28 @@ export function CMSProvider({ children }) {
         cookieConsent,
         setCookieConsent,
         utmParams,
-        updateSiteSettings,
-        updateSocialLinks,
-        addGalleryItem,
-        updateGalleryItem,
-        deleteGalleryItem,
+        updateHomeContent,
+        updateAboutContent,
+        addGearItem,
+        updateGearItem,
+        deleteGearItem,
+        addPortfolioItem,
+        updatePortfolioItem,
+        deletePortfolioItem,
         addService,
         updateService,
         deleteService,
+        addPricingPackage,
         updatePricingPackage,
-        updateFAQs,
+        deletePricingPackage,
+        addPricingAddOn,
+        updatePricingAddOn,
+        deletePricingAddOn,
+        addGalleryItem,
+        updateGalleryItem,
+        deleteGalleryItem,
+        updateSiteSettings,
+        updateSocialLinks,
         addInquiry,
         updateInquiryStatus,
         deleteInquiry,

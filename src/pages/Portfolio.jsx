@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
-import { Sparkles, Filter, ExternalLink, Printer, Play, X, Share2, Camera, Video } from 'lucide-react';
+import { Sparkles, Printer, Play, X, Camera, Video, ExternalLink } from 'lucide-react';
 import CopyButton from '../components/CopyButton';
 
 export default function Portfolio() {
   const { navigate } = useRouter();
   const { data } = useCMS();
-  const { galleryItems } = data;
+  const { portfolioItems } = data;
 
   const [activeCategory, setActiveCategory] = useState('All');
   const [activeLightbox, setActiveLightbox] = useState(null);
@@ -15,9 +15,11 @@ export default function Portfolio() {
 
   const categories = ['All', 'Weddings', 'Commercial', 'Fashion', 'Drone', 'Cinematic'];
 
+  const items = portfolioItems || [];
+
   const filteredItems = activeCategory === 'All'
-    ? galleryItems
-    : galleryItems.filter(item => item.category?.toLowerCase() === activeCategory.toLowerCase());
+    ? items
+    : items.filter(item => item.category?.toLowerCase() === activeCategory.toLowerCase());
 
   return (
     <div className="w-full py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -27,7 +29,7 @@ export default function Portfolio() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-bamboo-500/10 text-bamboo-500 text-xs font-semibold mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Curated Showcase • Accessible from About Us</span>
+            <span>Curated Showcase • Managed via CMS</span>
           </div>
           {/* SINGLE H1 TAG PER PAGE */}
           <h1 className="text-3xl sm:text-5xl font-extrabold text-zinc-900 dark:text-white font-serif tracking-tight">
@@ -125,7 +127,7 @@ export default function Portfolio() {
                 <div>
                   <div className="flex items-center justify-between text-xs text-zinc-400 mb-1">
                     <span className="text-bamboo-500 font-semibold">{item.category}</span>
-                    <span className="font-mono text-[11px]">{item.date}</span>
+                    <span className="font-mono text-[11px]">{item.year || '2026'}</span>
                   </div>
                   <h3 className="text-base font-bold group-hover:text-bamboo-500 transition-colors">
                     {item.title}
@@ -166,7 +168,6 @@ export default function Portfolio() {
       {activeLightbox && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-fade-in">
           <div className="relative max-w-5xl w-full max-h-[90vh] flex flex-col bg-[#121316] rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl">
-            {/* Lightbox Header */}
             <div className="flex items-center justify-between p-4 border-b border-zinc-800 text-white">
               <div>
                 <h3 className="text-sm font-bold text-white">{activeLightbox.title}</h3>
@@ -184,7 +185,6 @@ export default function Portfolio() {
               </div>
             </div>
 
-            {/* Photo View */}
             <div className="flex-1 overflow-auto flex items-center justify-center p-4 bg-black">
               <img
                 src={activeLightbox.url}
@@ -193,7 +193,6 @@ export default function Portfolio() {
               />
             </div>
 
-            {/* Lightbox Footer */}
             <div className="p-4 bg-zinc-950 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
               <p className="max-w-xl">{activeLightbox.description}</p>
               <button

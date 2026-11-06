@@ -6,46 +6,64 @@ import {
   Eye,
   EyeOff,
   LayoutDashboard,
+  Home as HomeIcon,
+  Users,
   Image as ImageIcon,
-  Video,
+  FolderKanban,
+  Layers,
+  DollarSign,
   Share2,
   Settings,
   Mail,
-  Users,
   Download,
   Upload,
   RotateCcw,
   Plus,
   Trash2,
   Edit,
-  CheckCircle2,
-  AlertCircle,
-  ExternalLink,
   Save,
   LogOut,
-  Calendar,
-  Layers,
-  DollarSign
+  Camera,
+  Video,
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import CopyButton from '../components/CopyButton';
+import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function AdminCMS() {
   const { navigate } = useRouter();
   const {
     data,
+    currency,
+    setCurrency,
     isAdminLoggedIn,
     adminLogin,
     adminLogout,
-    updateSiteSettings,
-    updateSocialLinks,
+    updateHomeContent,
+    updateAboutContent,
+    addGearItem,
+    updateGearItem,
+    deleteGearItem,
+    addPortfolioItem,
+    updatePortfolioItem,
+    deletePortfolioItem,
+    addService,
+    updateService,
+    deleteService,
+    updatePricingPackage,
+    addPricingPackage,
+    deletePricingPackage,
+    addPricingAddOn,
+    updatePricingAddOn,
+    deletePricingAddOn,
     addGalleryItem,
     updateGalleryItem,
     deleteGalleryItem,
-    updatePricingPackage,
-    updateService,
+    updateSiteSettings,
+    updateSocialLinks,
     updateInquiryStatus,
     deleteInquiry,
-    updateBacklinkStrategy,
     exportData,
     importData,
     resetToDefaults,
@@ -53,24 +71,37 @@ export default function AdminCMS() {
     showToast
   } = useCMS();
 
-  const { siteSettings, socialLinks, galleryItems, services, pricingPackages, inquiries, newsletterSubscribers, backlinkStrategy } = data;
+  const {
+    siteSettings,
+    homeContent,
+    aboutContent,
+    portfolioItems,
+    galleryItems,
+    services,
+    pricingPackages,
+    pricingAddOns,
+    socialLinks,
+    inquiries,
+    newsletterSubscribers
+  } = data;
 
   // Login Form State
   const [passwordInput, setPasswordInput] = useState('');
   const [showPassword, setShowPassword] = useState(false); // Requirement: "Password visibility toggle"
 
   // Active Admin Tab
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'gallery', 'social', 'settings', 'inquiries', 'subscribers', 'backup'
+  const [activeTab, setActiveTab] = useState('dashboard');
+  // 'dashboard' | 'home' | 'about' | 'portfolio' | 'gallery' | 'services' | 'pricing' | 'social' | 'inquiries' | 'settings' | 'backup'
 
-  // Gallery Item Form State
+  // Modal / Editing states
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
-  const [editingItemId, setEditingItemId] = useState(null);
-  const [itemForm, setItemForm] = useState({
-    type: 'photo', // 'photo' | 'video'
+  const [editingGalleryId, setEditingGalleryId] = useState(null);
+  const [galleryForm, setGalleryForm] = useState({
+    type: 'photo',
     title: '',
     category: 'Weddings',
-    url: '', // for photo
-    youtubeUrl: '', // for video (User requirement: videos uploaded through YouTube)
+    url: '',
+    youtubeUrl: '',
     description: '',
     gear: 'Sony Cine Line',
     duration: '3:30',
@@ -78,85 +109,208 @@ export default function AdminCMS() {
     featured: false
   });
 
-  // Settings Form State
+  // Portfolio Modal State
+  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
+  const [editingPortfolioId, setEditingPortfolioId] = useState(null);
+  const [portfolioForm, setPortfolioForm] = useState({
+    title: '',
+    category: 'Weddings',
+    type: 'video',
+    url: '',
+    youtubeUrl: '',
+    description: '',
+    client: '',
+    year: '2026',
+    gear: 'Sony FX6 Cinema Line',
+    featured: true
+  });
+
+  // Service Modal State
+  const [serviceModalOpen, setServiceModalOpen] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState(null);
+  const [serviceForm, setServiceForm] = useState({
+    title: '',
+    icon: 'Film',
+    shortDesc: '',
+    fullDesc: '',
+    startingPriceUSD: '$3,800',
+    startingPriceTZS: 'TSh 9,800,000',
+    duration: '8 – 12 Hours',
+    deliverablesText: ''
+  });
+
+  // Pricing Package Modal State
+  const [pricingModalOpen, setPricingModalOpen] = useState(false);
+  const [editingPricingId, setEditingPricingId] = useState(null);
+  const [pricingForm, setPricingForm] = useState({
+    name: '',
+    subtitle: '',
+    priceUSD: '$2,400',
+    priceTZS: 'TSh 6,200,000',
+    badge: 'Standard',
+    popular: false,
+    featuresText: ''
+  });
+
+  // Gear Modal State (About Us)
+  const [gearModalOpen, setGearModalOpen] = useState(false);
+  const [editingGearId, setEditingGearId] = useState(null);
+  const [gearForm, setGearForm] = useState({
+    name: '',
+    role: '',
+    desc: ''
+  });
+
+  // Homepage Form State
+  const [homeForm, setHomeForm] = useState({
+    badge: homeContent?.badge || "Award-Winning Photography & 4K YouTube Cinematography",
+    headlinePart1: homeContent?.headlinePart1 || "Every Frame a",
+    headlineGradient: homeContent?.headlineGradient || "Masterpiece",
+    description: homeContent?.description || "",
+    heroImage: homeContent?.heroImage || "",
+    primaryCtaText: homeContent?.primaryCtaText || "Reserve Shoot Date",
+    secondaryCtaText: homeContent?.secondaryCtaText || "Watch 4K Showreel",
+    showreelYoutubeId: homeContent?.showreelYoutubeId || "LXb3EKWsInQ",
+    showreelTitle: homeContent?.showreelTitle || "4K Master Showreel",
+    stat1Value: homeContent?.stats?.[0]?.value || "650+",
+    stat1Label: homeContent?.stats?.[0]?.label || "Shoots Completed",
+    stat2Value: homeContent?.stats?.[1]?.value || "10+",
+    stat2Label: homeContent?.stats?.[1]?.label || "Years Experience",
+    stat3Value: homeContent?.stats?.[2]?.value || "4K / 8K",
+    stat3Label: homeContent?.stats?.[2]?.label || "Cine Line Gear",
+    stat4Value: homeContent?.stats?.[3]?.value || "100%",
+    stat4Label: homeContent?.stats?.[3]?.label || "Client Love"
+  });
+
+  // About Us Form State
+  const [aboutForm, setAboutForm] = useState({
+    badge: aboutContent?.badge || "The Heart Behind The Lens",
+    title: aboutContent?.title || "About Panda Creative Studio",
+    subtitle: aboutContent?.subtitle || "",
+    storyTitle: aboutContent?.storyTitle || "Why the Panda? Contrast, Balance & Authenticity.",
+    storyParagraph1: aboutContent?.storyParagraph1 || "",
+    storyParagraph2: aboutContent?.storyParagraph2 || "",
+    directorImage: aboutContent?.directorImage || "",
+    quoteBadgeTitle: aboutContent?.quoteBadgeTitle || "Cinema Grade Precision",
+    quoteBadgeText: aboutContent?.quoteBadgeText || ""
+  });
+
+  // Site Settings Form State
   const [settingsForm, setSettingsForm] = useState({ ...siteSettings });
 
-  // Handle Login Submit
+  // Handle Login
   const handleLogin = (e) => {
     e.preventDefault();
     adminLogin(passwordInput);
     setPasswordInput('');
   };
 
-  // Open Add Gallery Item
-  const handleOpenAddGallery = (type = 'photo') => {
-    setEditingItemId(null);
-    setItemForm({
-      type,
-      title: '',
-      category: 'Weddings',
-      url: type === 'photo' ? 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80' : '',
-      youtubeUrl: type === 'video' ? 'https://www.youtube.com/watch?v=LXb3EKWsInQ' : '',
-      description: '',
-      gear: 'Sony FX6 + G-Master Primes',
-      duration: '4:15',
-      client: 'Private Client',
-      featured: true
+  // Save Homepage Content
+  const handleSaveHome = (e) => {
+    e.preventDefault();
+    updateHomeContent({
+      badge: homeForm.badge,
+      headlinePart1: homeForm.headlinePart1,
+      headlineGradient: homeForm.headlineGradient,
+      description: homeForm.description,
+      heroImage: homeForm.heroImage,
+      primaryCtaText: homeForm.primaryCtaText,
+      secondaryCtaText: homeForm.secondaryCtaText,
+      showreelYoutubeId: extractYouTubeId(homeForm.showreelYoutubeId),
+      showreelTitle: homeForm.showreelTitle,
+      stats: [
+        { id: "s1", value: homeForm.stat1Value, label: homeForm.stat1Label },
+        { id: "s2", value: homeForm.stat2Value, label: homeForm.stat2Label },
+        { id: "s3", value: homeForm.stat3Value, label: homeForm.stat3Label },
+        { id: "s4", value: homeForm.stat4Value, label: homeForm.stat4Label }
+      ]
     });
-    setGalleryModalOpen(true);
   };
 
-  // Open Edit Gallery Item
-  const handleOpenEditGallery = (item) => {
-    setEditingItemId(item.id);
-    setItemForm({
-      type: item.type,
-      title: item.title,
-      category: item.category,
-      url: item.url || '',
-      youtubeUrl: item.youtubeUrl || (item.youtubeId ? `https://www.youtube.com/watch?v=${item.youtubeId}` : ''),
-      description: item.description || '',
-      gear: item.gear || '',
-      duration: item.duration || '',
-      client: item.client || '',
-      featured: !!item.featured
-    });
-    setGalleryModalOpen(true);
+  // Save About Us Content
+  const handleSaveAbout = (e) => {
+    e.preventDefault();
+    updateAboutContent(aboutForm);
   };
 
   // Save Gallery Item
-  const handleSaveGalleryItem = (e) => {
+  const handleSaveGallery = (e) => {
     e.preventDefault();
-    if (!itemForm.title) {
-      showToast('Please provide a title', 'error');
-      return;
-    }
-
-    if (itemForm.type === 'video') {
-      const ytId = extractYouTubeId(itemForm.youtubeUrl);
-      if (!ytId) {
-        showToast('Please provide a valid YouTube URL or Video ID', 'error');
-        return;
-      }
-    }
-
-    if (editingItemId) {
-      updateGalleryItem(editingItemId, itemForm);
+    if (editingGalleryId) {
+      updateGalleryItem(editingGalleryId, galleryForm);
     } else {
-      addGalleryItem(itemForm);
+      addGalleryItem(galleryForm);
     }
     setGalleryModalOpen(false);
   };
 
-  // Delete Gallery Item with Confirmation
-  const handleDeleteGalleryItem = (item) => {
-    requestConfirmation({
-      title: `Delete ${item.type === 'video' ? 'Video' : 'Photo'}?`,
-      message: `Are you sure you want to remove "${item.title}" from the gallery? This action cannot be undone.`,
-      isDanger: true,
-      confirmText: 'Delete Item',
-      onConfirm: () => deleteGalleryItem(item.id)
-    });
+  // Save Portfolio Item
+  const handleSavePortfolio = (e) => {
+    e.preventDefault();
+    if (editingPortfolioId) {
+      updatePortfolioItem(editingPortfolioId, portfolioForm);
+    } else {
+      addPortfolioItem(portfolioForm);
+    }
+    setPortfolioModalOpen(false);
+  };
+
+  // Save Service
+  const handleSaveService = (e) => {
+    e.preventDefault();
+    const deliverables = serviceForm.deliverablesText
+      ? serviceForm.deliverablesText.split('\n').filter(Boolean)
+      : [];
+    const itemData = {
+      title: serviceForm.title,
+      icon: serviceForm.icon,
+      shortDesc: serviceForm.shortDesc,
+      fullDesc: serviceForm.fullDesc,
+      startingPriceUSD: serviceForm.startingPriceUSD,
+      startingPriceTZS: serviceForm.startingPriceTZS,
+      duration: serviceForm.duration,
+      deliverables
+    };
+    if (editingServiceId) {
+      updateService(editingServiceId, itemData);
+    } else {
+      addService(itemData);
+    }
+    setServiceModalOpen(false);
+  };
+
+  // Save Pricing Package
+  const handleSavePricing = (e) => {
+    e.preventDefault();
+    const features = pricingForm.featuresText
+      ? pricingForm.featuresText.split('\n').filter(Boolean)
+      : [];
+    const itemData = {
+      name: pricingForm.name,
+      subtitle: pricingForm.subtitle,
+      priceUSD: pricingForm.priceUSD,
+      priceTZS: pricingForm.priceTZS,
+      badge: pricingForm.badge,
+      popular: pricingForm.popular,
+      features
+    };
+    if (editingPricingId) {
+      updatePricingPackage(editingPricingId, itemData);
+    } else {
+      addPricingPackage(itemData);
+    }
+    setPricingModalOpen(false);
+  };
+
+  // Save Gear Item
+  const handleSaveGear = (e) => {
+    e.preventDefault();
+    if (editingGearId) {
+      updateGearItem(editingGearId, gearForm);
+    } else {
+      addGearItem(gearForm);
+    }
+    setGearModalOpen(false);
   };
 
   // Export Inquiries to CSV
@@ -165,7 +319,7 @@ export default function AdminCMS() {
       showToast('No inquiries to export', 'info');
       return;
     }
-    const headers = ['ID', 'Date', 'Name', 'Email', 'Phone', 'Service', 'Budget', 'Event Date', 'UTM Source', 'UTM Campaign', 'Status', 'Message'];
+    const headers = ['ID', 'Date', 'Name', 'Email', 'Phone', 'Service', 'Budget', 'Currency', 'Shoot Date', 'UTM Source', 'Status', 'Message'];
     const rows = inquiries.map(i => [
       i.id,
       i.date,
@@ -174,9 +328,9 @@ export default function AdminCMS() {
       i.phone,
       `"${(i.service || '').replace(/"/g, '""')}"`,
       i.budget,
+      i.currency || 'USD',
       i.eventDate,
       i.utmSource || '',
-      i.utmCampaign || '',
       i.status,
       `"${(i.message || '').replace(/"/g, '""')}"`
     ]);
@@ -192,7 +346,7 @@ export default function AdminCMS() {
     showToast('Inquiries CSV exported successfully!');
   };
 
-  // If Not Logged In, Render Secure Footer Admin Login Panel
+  // IF NOT LOGGED IN: Render Footer Admin Login Screen
   if (!isAdminLoggedIn) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-20 bg-[#08090a] text-white">
@@ -206,7 +360,7 @@ export default function AdminCMS() {
               Panda Studio CMS Access
             </h1>
             <p className="text-xs text-zinc-400">
-              Footer Admin Panel. Manage photos, YouTube videos, inquiries, and social networks.
+              Footer Admin Panel. Manage homepage, about us, gallery, services, portfolio, and pricing (USD &amp; TZS).
             </p>
           </div>
 
@@ -260,7 +414,7 @@ export default function AdminCMS() {
     );
   }
 
-  // LOGGED IN ADMIN VIEW
+  // LOGGED IN ADMIN PANEL VIEW
   return (
     <div className="w-full min-h-screen bg-[#08090a] text-zinc-100 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -275,12 +429,13 @@ export default function AdminCMS() {
                 Studio CMS Admin Panel
               </h1>
               <span className="text-xs text-bamboo-400">
-                Connected: {siteSettings.name} • Cloudflare Ready
+                Connected: {siteSettings.name} • Active Pricing Currency: <strong>{currency} (USD &amp; TZS Supported)</strong>
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <CurrencySwitcher />
             <button
               onClick={() => navigate('/')}
               className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition-colors"
@@ -297,11 +452,11 @@ export default function AdminCMS() {
           </div>
         </div>
 
-        {/* CMS Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-2 p-1.5 bg-zinc-900 rounded-2xl border border-zinc-800">
+        {/* CMS Tab Navigation (Homepage, About Us, Gallery, Services, Portfolio, Pricing, Social, etc.) */}
+        <div className="flex flex-wrap items-center gap-2 p-1.5 bg-zinc-900 rounded-2xl border border-zinc-800 overflow-x-auto">
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'dashboard' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -310,18 +465,68 @@ export default function AdminCMS() {
           </button>
 
           <button
+            onClick={() => setActiveTab('home')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'home' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <HomeIcon className="w-3.5 h-3.5" />
+            <span>Homepage</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('about')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'about' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>About Us &amp; Gear</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('portfolio')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'portfolio' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <FolderKanban className="w-3.5 h-3.5" />
+            <span>Portfolio Showcase ({portfolioItems?.length || 0})</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('gallery')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'gallery' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5" />
-            <span>Photos &amp; YouTube Videos ({galleryItems.length})</span>
+            <span>Gallery (Photos &amp; YouTube)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('services')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'services' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Services (USD &amp; TZS)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('pricing')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'pricing' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <DollarSign className="w-3.5 h-3.5" />
+            <span>Pricing (TZS &amp; USD Only)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('social')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'social' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -331,37 +536,27 @@ export default function AdminCMS() {
 
           <button
             onClick={() => setActiveTab('inquiries')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'inquiries' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Mail className="w-3.5 h-3.5" />
-            <span>Inquiries &amp; UTM Leads ({inquiries.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('subscribers')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'subscribers' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Newsletter Subscribers ({newsletterSubscribers?.length || 0})</span>
+            <span>Inquiries ({inquiries.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('settings')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'settings' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Settings className="w-3.5 h-3.5" />
-            <span>Site Settings &amp; SEO</span>
+            <span>Settings &amp; SEO</span>
           </button>
 
           <button
             onClick={() => setActiveTab('backup')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
               activeTab === 'backup' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -376,7 +571,7 @@ export default function AdminCMS() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="p-6 rounded-2xl bg-[#121316] border border-zinc-800">
                 <div className="flex items-center justify-between text-zinc-400 text-xs mb-2">
-                  <span>Total Photos in Gallery</span>
+                  <span>Gallery Photos</span>
                   <ImageIcon className="w-4 h-4 text-bamboo-400" />
                 </div>
                 <span className="text-3xl font-extrabold text-white font-serif">
@@ -396,6 +591,16 @@ export default function AdminCMS() {
 
               <div className="p-6 rounded-2xl bg-[#121316] border border-zinc-800">
                 <div className="flex items-center justify-between text-zinc-400 text-xs mb-2">
+                  <span>Curated Portfolio Works</span>
+                  <FolderKanban className="w-4 h-4 text-emerald-400" />
+                </div>
+                <span className="text-3xl font-extrabold text-white font-serif">
+                  {portfolioItems?.length || 0}
+                </span>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-[#121316] border border-zinc-800">
+                <div className="flex items-center justify-between text-zinc-400 text-xs mb-2">
                   <span>Client Inquiries</span>
                   <Mail className="w-4 h-4 text-bamboo-400" />
                 </div>
@@ -403,67 +608,465 @@ export default function AdminCMS() {
                   {inquiries.length}
                 </span>
               </div>
-
-              <div className="p-6 rounded-2xl bg-[#121316] border border-zinc-800">
-                <div className="flex items-center justify-between text-zinc-400 text-xs mb-2">
-                  <span>Newsletter VIPs</span>
-                  <Users className="w-4 h-4 text-emerald-400" />
-                </div>
-                <span className="text-3xl font-extrabold text-white font-serif">
-                  {newsletterSubscribers?.length || 0}
-                </span>
-              </div>
             </div>
 
-            {/* Quick Actions */}
             <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-4">
-              <h2 className="text-base font-bold text-white">Quick CMS Actions</h2>
+              <h2 className="text-base font-bold text-white">Quick CMS Management Portals</h2>
               <div className="flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => handleOpenAddGallery('photo')}
+                  onClick={() => setActiveTab('home')}
+                  className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold"
+                >
+                  Manage Homepage
+                </button>
+                <button
+                  onClick={() => setActiveTab('about')}
+                  className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold"
+                >
+                  Manage About Us &amp; Gear
+                </button>
+                <button
+                  onClick={() => setActiveTab('portfolio')}
                   className="btn-panda-primary text-xs py-2.5 px-4"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>Add New Photo</span>
+                  Manage Portfolio
                 </button>
                 <button
-                  onClick={() => handleOpenAddGallery('video')}
-                  className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  onClick={() => setActiveTab('pricing')}
+                  className="px-4 py-2.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 text-amber-200 text-xs font-semibold border border-amber-800/50"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>Add YouTube Video</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('inquiries')}
-                  className="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold transition-colors"
-                >
-                  View New Client Leads ({inquiries.filter(i => i.status === 'New').length})
+                  Edit Pricing (TZS &amp; USD)
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* TAB 2: GALLERY MANAGER (Photos & YouTube Videos) */}
+        {/* TAB 2: HOMEPAGE CMS MANAGER */}
+        {activeTab === 'home' && (
+          <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
+            <div className="pb-4 border-b border-zinc-800 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-white">Homepage Content Manager</h2>
+                <p className="text-xs text-zinc-400">
+                  Update hero headline, background image, showreel video, and studio stats.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveHome} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Hero Pill Badge</label>
+                  <input
+                    type="text"
+                    value={homeForm.badge}
+                    onChange={(e) => setHomeForm({ ...homeForm, badge: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Hero Background Image URL</label>
+                  <input
+                    type="url"
+                    value={homeForm.heroImage}
+                    onChange={(e) => setHomeForm({ ...homeForm, heroImage: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Headline (First Part)</label>
+                  <input
+                    type="text"
+                    value={homeForm.headlinePart1}
+                    onChange={(e) => setHomeForm({ ...homeForm, headlinePart1: e.target.value })}
+                    placeholder="e.g. Every Frame a"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Headline (Gradient Highlight Word)</label>
+                  <input
+                    type="text"
+                    value={homeForm.headlineGradient}
+                    onChange={(e) => setHomeForm({ ...homeForm, headlineGradient: e.target.value })}
+                    placeholder="e.g. Masterpiece"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Hero Sub-Description</label>
+                <textarea
+                  rows={2}
+                  value={homeForm.description}
+                  onChange={(e) => setHomeForm({ ...homeForm, description: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">4K Showreel YouTube Video ID or URL</label>
+                  <input
+                    type="text"
+                    value={homeForm.showreelYoutubeId}
+                    onChange={(e) => setHomeForm({ ...homeForm, showreelYoutubeId: e.target.value })}
+                    placeholder="e.g. LXb3EKWsInQ"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Showreel Title</label>
+                  <input
+                    type="text"
+                    value={homeForm.showreelTitle}
+                    onChange={(e) => setHomeForm({ ...homeForm, showreelTitle: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              {/* Stats Counters */}
+              <div className="pt-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-bamboo-400 block mb-2">Homepage Stats Counters</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800">
+                    <label className="block text-[10px] text-zinc-500 uppercase">Stat 1</label>
+                    <input
+                      type="text"
+                      value={homeForm.stat1Value}
+                      onChange={(e) => setHomeForm({ ...homeForm, stat1Value: e.target.value })}
+                      className="w-full px-2 py-1 bg-zinc-950 rounded text-xs text-white mb-1"
+                    />
+                    <input
+                      type="text"
+                      value={homeForm.stat1Label}
+                      onChange={(e) => setHomeForm({ ...homeForm, stat1Label: e.target.value })}
+                      className="w-full px-2 py-1 bg-zinc-950 rounded text-[11px] text-zinc-400"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800">
+                    <label className="block text-[10px] text-zinc-500 uppercase">Stat 2</label>
+                    <input
+                      type="text"
+                      value={homeForm.stat2Value}
+                      onChange={(e) => setHomeForm({ ...homeForm, stat2Value: e.target.value })}
+                      className="w-full px-2 py-1 bg-zinc-950 rounded text-xs text-white mb-1"
+                    />
+                    <input
+                      type="text"
+                      value={homeForm.stat2Label}
+                      onChange={(e) => setHomeForm({ ...homeForm, stat2Label: e.target.value })}
+                      className="w-full px-2 py-1 bg-zinc-950 rounded text-[11px] text-zinc-400"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800">
+                    <label className="block text-[10px] text-zinc-500 uppercase">Stat 3</label>
+                    <input
+                      type="text"
+                      value={homeForm.stat3Value}
+                      onChange={(e) => setHomeForm({ ...homeForm, stat3Value: e.target.value })}
+                      className="w-full px-2 py-1 bg-zinc-950 rounded text-xs text-white mb-1"
+                    />
+                    <input
+                      type="text"
+                      value={homeForm.stat3Label}
+                      onChange={(e) => setHomeForm({ ...homeForm, stat3Label: e.target.value })}
+                      className="w-full px-2 py-1 bg-zinc-950 rounded text-[11px] text-zinc-400"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800">
+                    <label className="block text-[10px] text-zinc-500 uppercase">Stat 4</label>
+                    <input
+                      type="text"
+                      value={homeForm.stat4Value}
+                      onChange={(e) => setHomeForm({ ...homeForm, stat4Value: e.target.value })}
+                      className="w-full px-2 py-1 bg-zinc-950 rounded text-xs text-white mb-1"
+                    />
+                    <input
+                      type="text"
+                      value={homeForm.stat4Label}
+                      onChange={(e) => setHomeForm({ ...homeForm, stat4Label: e.target.value })}
+                      className="w-full px-2 py-1 bg-zinc-950 rounded text-[11px] text-zinc-400"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="btn-panda-primary text-xs py-2.5 px-6 font-semibold"
+              >
+                Save Homepage Content
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* TAB 3: ABOUT US CMS MANAGER */}
+        {activeTab === 'about' && (
+          <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-8">
+            <div className="pb-4 border-b border-zinc-800">
+              <h2 className="text-lg font-bold text-white">About Us &amp; Gear Arsenal Manager</h2>
+              <p className="text-xs text-zinc-400">
+                Manage the brand story, director photo, philosophy, and camera equipment list.
+              </p>
+            </div>
+
+            {/* About Text Form */}
+            <form onSubmit={handleSaveAbout} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">About Page Header Title</label>
+                  <input
+                    type="text"
+                    value={aboutForm.title}
+                    onChange={(e) => setAboutForm({ ...aboutForm, title: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Director Image URL</label>
+                  <input
+                    type="url"
+                    value={aboutForm.directorImage}
+                    onChange={(e) => setAboutForm({ ...aboutForm, directorImage: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Story Heading</label>
+                <input
+                  type="text"
+                  value={aboutForm.storyTitle}
+                  onChange={(e) => setAboutForm({ ...aboutForm, storyTitle: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Story Paragraph 1 (Philosophy &amp; Color Scheme)</label>
+                <textarea
+                  rows={3}
+                  value={aboutForm.storyParagraph1}
+                  onChange={(e) => setAboutForm({ ...aboutForm, storyParagraph1: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Story Paragraph 2 (Background &amp; Trust)</label>
+                <textarea
+                  rows={3}
+                  value={aboutForm.storyParagraph2}
+                  onChange={(e) => setAboutForm({ ...aboutForm, storyParagraph2: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="btn-panda-primary text-xs py-2.5 px-6 font-semibold"
+              >
+                Save About Story
+              </button>
+            </form>
+
+            {/* Gear Arsenal CRUD */}
+            <div className="pt-6 border-t border-zinc-800">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-white">Camera Gear &amp; Cine Arsenal</h3>
+                <button
+                  onClick={() => {
+                    setEditingGearId(null);
+                    setGearForm({ name: '', role: '', desc: '' });
+                    setGearModalOpen(true);
+                  }}
+                  className="btn-panda-primary text-xs py-1.5 px-3 flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Equipment</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {aboutContent?.gearList?.map((gear) => (
+                  <div key={gear.id} className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-start justify-between gap-3">
+                    <div>
+                      <strong className="text-white text-xs block">{gear.name}</strong>
+                      <span className="text-[11px] text-bamboo-400 font-semibold block">{gear.role}</span>
+                      <p className="text-[11px] text-zinc-400 mt-1 line-clamp-1">{gear.desc}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => {
+                          setEditingGearId(gear.id);
+                          setGearForm({ name: gear.name, role: gear.role, desc: gear.desc });
+                          setGearModalOpen(true);
+                        }}
+                        className="p-1.5 text-zinc-400 hover:text-white"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => deleteGearItem(gear.id)}
+                        className="p-1.5 text-zinc-400 hover:text-red-400"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: PORTFOLIO SHOWCASE CMS MANAGER */}
+        {activeTab === 'portfolio' && (
+          <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+              <div>
+                <h2 className="text-lg font-bold text-white">Portfolio Showcase Manager</h2>
+                <p className="text-xs text-zinc-400">
+                  Manage the curated works featured on the Portfolio page (accessed via the About Us dropdown).
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingPortfolioId(null);
+                  setPortfolioForm({
+                    title: '',
+                    category: 'Weddings',
+                    type: 'video',
+                    url: '',
+                    youtubeUrl: 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
+                    description: '',
+                    client: '',
+                    year: '2026',
+                    gear: 'Sony FX6 4K',
+                    featured: true
+                  });
+                  setPortfolioModalOpen(true);
+                }}
+                className="btn-panda-primary text-xs py-2 px-4 flex items-center gap-1.5"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Portfolio Project</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {portfolioItems?.map((item) => (
+                <div key={item.id} className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 flex gap-3.5 items-start">
+                  <img
+                    src={item.type === 'video' ? (item.thumbnail || `https://img.youtube.com/vi/${item.youtubeId}/mqdefault.jpg`) : item.url}
+                    alt={item.title}
+                    className="w-24 h-16 rounded-xl object-cover bg-black shrink-0 border border-zinc-700"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-bamboo-400 uppercase tracking-wider">{item.category}</span>
+                      <span className="text-[10px] text-zinc-500 font-mono">{item.year}</span>
+                    </div>
+                    <h3 className="text-xs font-bold text-white truncate mt-0.5">{item.title}</h3>
+                    <p className="text-[11px] text-zinc-400 line-clamp-1">{item.client} • {item.gear}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <button
+                        onClick={() => {
+                          setEditingPortfolioId(item.id);
+                          setPortfolioForm({
+                            title: item.title,
+                            category: item.category,
+                            type: item.type,
+                            url: item.url || '',
+                            youtubeUrl: item.youtubeUrl || '',
+                            description: item.description || '',
+                            client: item.client || '',
+                            year: item.year || '2026',
+                            gear: item.gear || '',
+                            featured: !!item.featured
+                          });
+                          setPortfolioModalOpen(true);
+                        }}
+                        className="text-[11px] text-bamboo-400 hover:underline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deletePortfolioItem(item.id)}
+                        className="text-[11px] text-red-400 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: GALLERY MANAGER (Photos & YouTube Videos) */}
         {activeTab === 'gallery' && (
           <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
               <div>
                 <h2 className="text-lg font-bold text-white">Gallery Content Manager</h2>
                 <p className="text-xs text-zinc-400">
-                  Add, edit, or delete photos and YouTube cinema films.
+                  Manage photos and YouTube video embeds across the public Gallery.
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => handleOpenAddGallery('photo')}
+                  onClick={() => {
+                    setEditingGalleryId(null);
+                    setGalleryForm({
+                      type: 'photo',
+                      title: '',
+                      category: 'Weddings',
+                      url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
+                      youtubeUrl: '',
+                      description: '',
+                      gear: 'Sony A1 50mm f/1.2',
+                      duration: '',
+                      client: '',
+                      featured: true
+                    });
+                    setGalleryModalOpen(true);
+                  }}
                   className="btn-panda-primary text-xs py-2 px-4"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Photo</span>
                 </button>
                 <button
-                  onClick={() => handleOpenAddGallery('video')}
+                  onClick={() => {
+                    setEditingGalleryId(null);
+                    setGalleryForm({
+                      type: 'video',
+                      title: '',
+                      category: 'Weddings',
+                      url: '',
+                      youtubeUrl: 'https://www.youtube.com/watch?v=LXb3EKWsInQ',
+                      description: '',
+                      gear: 'Sony FX6 4K',
+                      duration: '4:15',
+                      client: 'Private Client',
+                      featured: true
+                    });
+                    setGalleryModalOpen(true);
+                  }}
                   className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -472,7 +1075,6 @@ export default function AdminCMS() {
               </div>
             </div>
 
-            {/* List */}
             <div className="space-y-3">
               {galleryItems.map((item) => (
                 <div
@@ -494,27 +1096,36 @@ export default function AdminCMS() {
                         </span>
                         <span className="text-xs text-zinc-400">{item.category}</span>
                       </div>
-                      <h3 className="text-sm font-bold text-white truncate mt-0.5">
-                        {item.title}
-                      </h3>
-                      <p className="text-xs text-zinc-500 line-clamp-1">
-                        {item.description}
-                      </p>
+                      <h3 className="text-sm font-bold text-white truncate mt-0.5">{item.title}</h3>
+                      <p className="text-xs text-zinc-500 line-clamp-1">{item.description}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                     <button
-                      onClick={() => handleOpenEditGallery(item)}
-                      className="p-2 rounded-lg bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition-colors"
-                      title="Edit Item"
+                      onClick={() => {
+                        setEditingGalleryId(item.id);
+                        setGalleryForm({
+                          type: item.type,
+                          title: item.title,
+                          category: item.category,
+                          url: item.url || '',
+                          youtubeUrl: item.youtubeUrl || '',
+                          description: item.description || '',
+                          gear: item.gear || '',
+                          duration: item.duration || '',
+                          client: item.client || '',
+                          featured: !!item.featured
+                        });
+                        setGalleryModalOpen(true);
+                      }}
+                      className="p-2 rounded-lg bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDeleteGalleryItem(item)}
-                      className="p-2 rounded-lg bg-red-950/80 text-red-400 hover:text-white hover:bg-red-900 transition-colors"
-                      title="Delete Item"
+                      onClick={() => deleteGalleryItem(item.id)}
+                      className="p-2 rounded-lg bg-red-950/80 text-red-400 hover:text-white hover:bg-red-900"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -525,13 +1136,207 @@ export default function AdminCMS() {
           </div>
         )}
 
-        {/* TAB 3: SOCIAL NETWORKS MANAGER (User prompt requirement: all editable through CMS) */}
+        {/* TAB 6: SERVICES CMS MANAGER (WITH TZS & USD PRICING) */}
+        {activeTab === 'services' && (
+          <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+              <div>
+                <h2 className="text-lg font-bold text-white">Services &amp; Deliverables Manager</h2>
+                <p className="text-xs text-zinc-400">
+                  Update starting prices in both USD and TZS, deliverables, and service descriptions.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingServiceId(null);
+                  setServiceForm({
+                    title: '',
+                    icon: 'Film',
+                    shortDesc: '',
+                    fullDesc: '',
+                    startingPriceUSD: '$2,500',
+                    startingPriceTZS: 'TSh 6,500,000',
+                    duration: 'Full Day',
+                    deliverablesText: ''
+                  });
+                  setServiceModalOpen(true);
+                }}
+                className="btn-panda-primary text-xs py-2 px-4 flex items-center gap-1.5"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Service</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {services.map((svc) => (
+                <div key={svc.id} className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h3 className="text-base font-bold text-white">{svc.title}</h3>
+                      <div className="flex items-center gap-3 text-xs mt-1">
+                        <span className="text-bamboo-400 font-semibold font-mono">USD: {svc.startingPriceUSD}</span>
+                        <span className="text-zinc-500">•</span>
+                        <span className="text-bamboo-400 font-semibold font-mono">TZS: {svc.startingPriceTZS}</span>
+                        <span className="text-zinc-500">•</span>
+                        <span className="text-zinc-400">{svc.duration}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingServiceId(svc.id);
+                          setServiceForm({
+                            title: svc.title,
+                            icon: svc.icon || 'Film',
+                            shortDesc: svc.shortDesc || '',
+                            fullDesc: svc.fullDesc || '',
+                            startingPriceUSD: svc.startingPriceUSD,
+                            startingPriceTZS: svc.startingPriceTZS,
+                            duration: svc.duration || '',
+                            deliverablesText: (svc.deliverables || []).join('\n')
+                          });
+                          setServiceModalOpen(true);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-200"
+                      >
+                        Edit Service
+                      </button>
+                      <button
+                        onClick={() => deleteService(svc.id)}
+                        className="p-1.5 text-zinc-500 hover:text-red-400 rounded"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-zinc-400">{svc.shortDesc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 7: PRICING CMS MANAGER (STRICTLY IN TZS AND USD) */}
+        {activeTab === 'pricing' && (
+          <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+              <div>
+                <h2 className="text-lg font-bold text-white">Pricing Packages Manager (USD &amp; TZS Only)</h2>
+                <p className="text-xs text-zinc-400">
+                  Every package and add-on is configured strictly in Tanzanian Shillings (TZS) and US Dollars (USD).
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingPricingId(null);
+                  setPricingForm({
+                    name: '',
+                    subtitle: '',
+                    priceUSD: '$3,000',
+                    priceTZS: 'TSh 7,800,000',
+                    badge: 'Package',
+                    popular: false,
+                    featuresText: ''
+                  });
+                  setPricingModalOpen(true);
+                }}
+                className="btn-panda-primary text-xs py-2 px-4 flex items-center gap-1.5"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Pricing Tier</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {pricingPackages.map((pkg) => (
+                <div key={pkg.id} className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-bamboo-400 uppercase">{pkg.badge}</span>
+                      {pkg.popular && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-white">Popular</span>}
+                    </div>
+                    <h3 className="text-base font-bold text-white mt-1">{pkg.name}</h3>
+                    <p className="text-xs text-zinc-400">{pkg.subtitle}</p>
+
+                    <div className="my-3 p-3 rounded-xl bg-zinc-950 font-mono text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-zinc-500">Price in USD:</span>
+                        <strong className="text-white">{pkg.priceUSD}</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-zinc-500">Price in TZS:</span>
+                        <strong className="text-bamboo-400">{pkg.priceTZS}</strong>
+                      </div>
+                    </div>
+
+                    <ul className="text-xs text-zinc-400 space-y-1 mb-4">
+                      {pkg.features.slice(0, 4).map((f, i) => (
+                        <li key={i} className="line-clamp-1">• {f}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
+                    <button
+                      onClick={() => {
+                        setEditingPricingId(pkg.id);
+                        setPricingForm({
+                          name: pkg.name,
+                          subtitle: pkg.subtitle,
+                          priceUSD: pkg.priceUSD,
+                          priceTZS: pkg.priceTZS,
+                          badge: pkg.badge,
+                          popular: !!pkg.popular,
+                          featuresText: pkg.features.join('\n')
+                        });
+                        setPricingModalOpen(true);
+                      }}
+                      className="text-xs font-semibold text-bamboo-400 hover:underline"
+                    >
+                      Edit Package
+                    </button>
+                    <button
+                      onClick={() => deletePricingPackage(pkg.id)}
+                      className="text-xs font-semibold text-red-400 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Optional Add-Ons Manager */}
+            <div className="pt-6 border-t border-zinc-800">
+              <h3 className="text-sm font-bold text-white mb-3">Pricing Add-on Enhancements</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {pricingAddOns?.map((addon) => (
+                  <div key={addon.id} className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between">
+                    <div>
+                      <strong className="text-white text-xs block">{addon.name}</strong>
+                      <span className="text-[11px] text-zinc-500">{addon.desc}</span>
+                    </div>
+                    <div className="text-right font-mono text-xs">
+                      <span className="text-white block">{addon.priceUSD}</span>
+                      <span className="text-bamboo-400 text-[11px] block">{addon.priceTZS}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 8: SOCIAL NETWORKS */}
         {activeTab === 'social' && (
           <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
             <div className="pb-4 border-b border-zinc-800">
               <h2 className="text-lg font-bold text-white">Social Networks &amp; Channel Manager</h2>
               <p className="text-xs text-zinc-400">
-                All social links across the footer, mobile menu, and contact drawers are completely editable here.
+                All 8 social channels (Instagram, YouTube, TikTok, Facebook, Twitter, Pinterest, LinkedIn, WhatsApp) are fully editable.
               </p>
             </div>
 
@@ -580,7 +1385,7 @@ export default function AdminCMS() {
                           updated[index].handle = e.target.value;
                           updateSocialLinks(updated);
                         }}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-white focus:outline-none focus:border-bamboo-500"
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-white"
                       />
                     </div>
                     <div>
@@ -593,7 +1398,7 @@ export default function AdminCMS() {
                           updated[index].followers = e.target.value;
                           updateSocialLinks(updated);
                         }}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-white focus:outline-none focus:border-bamboo-500"
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-white"
                       />
                     </div>
                   </div>
@@ -603,14 +1408,14 @@ export default function AdminCMS() {
           </div>
         )}
 
-        {/* TAB 4: CLIENT INQUIRIES & UTM LEADS */}
+        {/* TAB 9: INQUIRIES & LEADS */}
         {activeTab === 'inquiries' && (
           <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
               <div>
-                <h2 className="text-lg font-bold text-white">Client Shoot Inquiries &amp; UTM Tracking</h2>
+                <h2 className="text-lg font-bold text-white">Client Shoot Inquiries &amp; Leads</h2>
                 <p className="text-xs text-zinc-400">
-                  Every booking submission captures client details and marketing campaign source.
+                  Every booking request records client contact info, chosen currency, and marketing campaign UTM tags.
                 </p>
               </div>
               <button
@@ -629,10 +1434,7 @@ export default function AdminCMS() {
             ) : (
               <div className="space-y-4">
                 {inquiries.map((inq) => (
-                  <div
-                    key={inq.id}
-                    className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3"
-                  >
+                  <div key={inq.id} className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
                         <span className="text-sm font-bold text-white">{inq.name}</span>
@@ -657,15 +1459,7 @@ export default function AdminCMS() {
                           <option value="Archived">Archived</option>
                         </select>
                         <button
-                          onClick={() => {
-                            requestConfirmation({
-                              title: 'Delete Inquiry?',
-                              message: `Remove inquiry from ${inq.name}?`,
-                              isDanger: true,
-                              confirmText: 'Delete',
-                              onConfirm: () => deleteInquiry(inq.id)
-                            });
-                          }}
+                          onClick={() => deleteInquiry(inq.id)}
                           className="p-1.5 text-zinc-500 hover:text-red-400 rounded"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -673,21 +1467,21 @@ export default function AdminCMS() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-zinc-950 p-3 rounded-xl">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-zinc-950 p-3 rounded-xl font-mono">
                       <div>
-                        <span className="text-zinc-500 block text-[10px] uppercase">Service</span>
-                        <span className="font-semibold text-zinc-300">{inq.service}</span>
+                        <span className="text-zinc-500 block text-[10px] uppercase font-sans">Service</span>
+                        <span className="font-semibold text-zinc-300 truncate block">{inq.service}</span>
                       </div>
                       <div>
-                        <span className="text-zinc-500 block text-[10px] uppercase">Budget</span>
+                        <span className="text-zinc-500 block text-[10px] uppercase font-sans">Budget</span>
                         <span className="font-semibold text-bamboo-400">{inq.budget}</span>
                       </div>
                       <div>
-                        <span className="text-zinc-500 block text-[10px] uppercase">Shoot Date</span>
+                        <span className="text-zinc-500 block text-[10px] uppercase font-sans">Shoot Date</span>
                         <span className="font-semibold text-zinc-300">{inq.eventDate || 'TBD'}</span>
                       </div>
                       <div>
-                        <span className="text-zinc-500 block text-[10px] uppercase">UTM Source</span>
+                        <span className="text-zinc-500 block text-[10px] uppercase font-sans">UTM Source</span>
                         <span className="font-semibold text-zinc-400">{inq.utmSource || 'direct'}</span>
                       </div>
                     </div>
@@ -702,37 +1496,11 @@ export default function AdminCMS() {
           </div>
         )}
 
-        {/* TAB 5: NEWSLETTER SUBSCRIBERS */}
-        {activeTab === 'subscribers' && (
-          <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
-              <div>
-                <h2 className="text-lg font-bold text-white">VIP Newsletter Subscribers</h2>
-                <p className="text-xs text-zinc-400">
-                  Clients and filmmakers subscribed through the website form.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {newsletterSubscribers?.map((sub) => (
-                <div key={sub.id} className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between text-xs">
-                  <div>
-                    <strong className="text-white block">{sub.email}</strong>
-                    <span className="text-zinc-500 text-[11px]">Subscribed on {sub.date} • Source: {sub.source}</span>
-                  </div>
-                  <CopyButton text={sub.email} label="Copy Email" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 6: SITE SETTINGS & SEO */}
+        {/* TAB 10: SETTINGS & SEO */}
         {activeTab === 'settings' && (
           <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
             <div className="pb-4 border-b border-zinc-800">
-              <h2 className="text-lg font-bold text-white">Site Settings &amp; Google SEO</h2>
+              <h2 className="text-lg font-bold text-white">Site Settings &amp; SEO</h2>
               <p className="text-xs text-zinc-400">
                 Update brand identity, meta titles, Google Search Console verification, and admin passcode.
               </p>
@@ -838,13 +1606,13 @@ export default function AdminCMS() {
           </div>
         )}
 
-        {/* TAB 7: BACKUP & FACTORY RESET */}
+        {/* TAB 11: BACKUP & RESET */}
         {activeTab === 'backup' && (
           <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
             <div className="pb-4 border-b border-zinc-800">
-              <h2 className="text-lg font-bold text-white">CMS Backup, Restore &amp; Reset</h2>
+              <h2 className="text-lg font-bold text-white">CMS Backup &amp; Factory Reset</h2>
               <p className="text-xs text-zinc-400">
-                Safely download your complete website database to JSON, restore from a file, or reset to demo data.
+                Download your website database to JSON, restore from backup, or reset to factory defaults.
               </p>
             </div>
 
@@ -853,7 +1621,7 @@ export default function AdminCMS() {
                 <Download className="w-6 h-6 text-bamboo-400" />
                 <h3 className="text-sm font-bold text-white">Download JSON Backup</h3>
                 <p className="text-xs text-zinc-400">
-                  Exports all photos, YouTube videos, services, pricing, inquiries, and settings into a JSON backup file.
+                  Exports all homepage content, about story, portfolio, gallery photos, YouTube videos, services, and pricing (USD &amp; TZS).
                 </p>
                 <button
                   onClick={exportData}
@@ -867,7 +1635,7 @@ export default function AdminCMS() {
                 <Upload className="w-6 h-6 text-sky-400" />
                 <h3 className="text-sm font-bold text-white">Restore from Backup</h3>
                 <p className="text-xs text-zinc-400">
-                  Select a previously downloaded JSON file to restore your entire CMS instantly.
+                  Upload a previously saved JSON backup to replace the current CMS data.
                 </p>
                 <label className="w-full block text-center py-2 px-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold cursor-pointer transition-colors">
                   <span>Upload File</span>
@@ -894,13 +1662,13 @@ export default function AdminCMS() {
                 <RotateCcw className="w-6 h-6 text-red-400" />
                 <h3 className="text-sm font-bold text-white">Factory Reset</h3>
                 <p className="text-xs text-zinc-400">
-                  Resets the CMS to the default Panda Creative photography and YouTube demo datasets.
+                  Resets the CMS to original Panda Creative defaults (with USD and TZS pricing).
                 </p>
                 <button
                   onClick={resetToDefaults}
                   className="w-full py-2 px-3 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-300 hover:text-white text-xs font-semibold transition-colors"
                 >
-                  Reset CMS Defaults
+                  Reset Defaults
                 </button>
               </div>
             </div>
@@ -909,23 +1677,22 @@ export default function AdminCMS() {
 
       </div>
 
-      {/* Modal for Adding / Editing Gallery Item */}
+      {/* MODAL 1: ADD / EDIT GALLERY ITEM */}
       {galleryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
           <div className="relative w-full max-w-xl p-6 bg-[#121316] text-white border border-zinc-800 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold mb-4 font-serif">
-              {editingItemId ? 'Edit Gallery Item' : `Add New ${itemForm.type === 'video' ? 'YouTube Video' : 'Photo'}`}
+              {editingGalleryId ? 'Edit Gallery Item' : `Add New ${galleryForm.type === 'video' ? 'YouTube Video' : 'Photo'}`}
             </h3>
 
-            <form onSubmit={handleSaveGalleryItem} className="space-y-4">
+            <form onSubmit={handleSaveGallery} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 mb-1">Item Title *</label>
                 <input
                   type="text"
                   required
-                  value={itemForm.title}
-                  onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                  placeholder="e.g. Big Sur Sunset Romance"
+                  value={galleryForm.title}
+                  onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white focus:outline-none focus:border-bamboo-500"
                 />
               </div>
@@ -934,8 +1701,8 @@ export default function AdminCMS() {
                 <div>
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">Category</label>
                   <select
-                    value={itemForm.category}
-                    onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}
+                    value={galleryForm.category}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, category: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
                   >
                     <option value="Weddings">Weddings</option>
@@ -945,12 +1712,11 @@ export default function AdminCMS() {
                     <option value="Cinematic">Cinematic</option>
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">Media Format</label>
                   <select
-                    value={itemForm.type}
-                    onChange={(e) => setItemForm({ ...itemForm, type: e.target.value })}
+                    value={galleryForm.type}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, type: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
                   >
                     <option value="photo">Fine-Art Photo</option>
@@ -959,36 +1725,28 @@ export default function AdminCMS() {
                 </div>
               </div>
 
-              {/* Specific to Photos */}
-              {itemForm.type === 'photo' && (
+              {galleryForm.type === 'photo' ? (
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Image URL (High-Res) *</label>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">High-Res Image URL *</label>
                   <input
                     type="url"
                     required
-                    value={itemForm.url}
-                    onChange={(e) => setItemForm({ ...itemForm, url: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white focus:outline-none focus:border-bamboo-500"
+                    value={galleryForm.url}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, url: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
                   />
                 </div>
-              )}
-
-              {/* Specific to YouTube Videos (User requirement: videos uploaded through YouTube) */}
-              {itemForm.type === 'video' && (
+              ) : (
                 <div>
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">YouTube URL or Video ID *</label>
                   <input
                     type="text"
                     required
-                    value={itemForm.youtubeUrl}
-                    onChange={(e) => setItemForm({ ...itemForm, youtubeUrl: e.target.value })}
-                    placeholder="https://www.youtube.com/watch?v=... or LXb3EKWsInQ"
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white focus:outline-none focus:border-bamboo-500"
+                    value={galleryForm.youtubeUrl}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, youtubeUrl: e.target.value })}
+                    placeholder="https://www.youtube.com/watch?v=... or 11-char ID"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
                   />
-                  <span className="text-[10px] text-zinc-500 mt-1 block">
-                    Accepts any YouTube share link, watch URL, or raw 11-character video ID.
-                  </span>
                 </div>
               )}
 
@@ -996,10 +1754,9 @@ export default function AdminCMS() {
                 <label className="block text-xs font-semibold text-zinc-300 mb-1">Description</label>
                 <textarea
                   rows={2}
-                  value={itemForm.description}
-                  onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
-                  placeholder="Behind-the-scenes narrative or client summary..."
-                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white focus:outline-none focus:border-bamboo-500"
+                  value={galleryForm.description}
+                  onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
                 />
               </div>
 
@@ -1008,19 +1765,18 @@ export default function AdminCMS() {
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">Camera Gear Used</label>
                   <input
                     type="text"
-                    value={itemForm.gear}
-                    onChange={(e) => setItemForm({ ...itemForm, gear: e.target.value })}
-                    placeholder="e.g. Sony FX6 4K"
+                    value={galleryForm.gear}
+                    onChange={(e) => setGalleryForm({ ...galleryForm, gear: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
                   />
                 </div>
-                {itemForm.type === 'video' && (
+                {galleryForm.type === 'video' && (
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Film Runtime</label>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Duration</label>
                     <input
                       type="text"
-                      value={itemForm.duration}
-                      onChange={(e) => setItemForm({ ...itemForm, duration: e.target.value })}
+                      value={galleryForm.duration}
+                      onChange={(e) => setGalleryForm({ ...galleryForm, duration: e.target.value })}
                       placeholder="e.g. 4:15"
                       className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
                     />
@@ -1040,7 +1796,417 @@ export default function AdminCMS() {
                   type="submit"
                   className="btn-panda-primary text-xs py-2 px-5 font-semibold"
                 >
-                  Save to Gallery
+                  Save Gallery Item
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: ADD / EDIT PORTFOLIO PROJECT */}
+      {portfolioModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-xl p-6 bg-[#121316] text-white border border-zinc-800 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold mb-4 font-serif">
+              {editingPortfolioId ? 'Edit Portfolio Project' : 'Add Curated Portfolio Project'}
+            </h3>
+
+            <form onSubmit={handleSavePortfolio} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Project Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={portfolioForm.title}
+                  onChange={(e) => setPortfolioForm({ ...portfolioForm, title: e.target.value })}
+                  placeholder="e.g. Coastal Vows at Big Sur"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Category</label>
+                  <select
+                    value={portfolioForm.category}
+                    onChange={(e) => setPortfolioForm({ ...portfolioForm, category: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  >
+                    <option value="Weddings">Weddings</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Drone">Drone</option>
+                    <option value="Cinematic">Cinematic</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Format</label>
+                  <select
+                    value={portfolioForm.type}
+                    onChange={(e) => setPortfolioForm({ ...portfolioForm, type: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  >
+                    <option value="video">YouTube Cinematic Film</option>
+                    <option value="photo">High-Res Stills</option>
+                  </select>
+                </div>
+              </div>
+
+              {portfolioForm.type === 'video' ? (
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">YouTube Video Link or ID *</label>
+                  <input
+                    type="text"
+                    required
+                    value={portfolioForm.youtubeUrl}
+                    onChange={(e) => setPortfolioForm({ ...portfolioForm, youtubeUrl: e.target.value })}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Image URL *</label>
+                  <input
+                    type="url"
+                    required
+                    value={portfolioForm.url}
+                    onChange={(e) => setPortfolioForm({ ...portfolioForm, url: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Client Name</label>
+                  <input
+                    type="text"
+                    value={portfolioForm.client}
+                    onChange={(e) => setPortfolioForm({ ...portfolioForm, client: e.target.value })}
+                    placeholder="e.g. Eleanor &amp; James"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Year</label>
+                  <input
+                    type="text"
+                    value={portfolioForm.year}
+                    onChange={(e) => setPortfolioForm({ ...portfolioForm, year: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Camera Gear Used</label>
+                <input
+                  type="text"
+                  value={portfolioForm.gear}
+                  onChange={(e) => setPortfolioForm({ ...portfolioForm, gear: e.target.value })}
+                  placeholder="e.g. Sony FX6 + Cooke Primes"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Description</label>
+                <textarea
+                  rows={2}
+                  value={portfolioForm.description}
+                  onChange={(e) => setPortfolioForm({ ...portfolioForm, description: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setPortfolioModalOpen(false)}
+                  className="px-4 py-2 text-xs font-medium text-zinc-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-panda-primary text-xs py-2 px-5 font-semibold"
+                >
+                  Save Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: ADD / EDIT SERVICE (USD & TZS PRICING) */}
+      {serviceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-xl p-6 bg-[#121316] text-white border border-zinc-800 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold mb-4 font-serif">
+              {editingServiceId ? 'Edit Service' : 'Add New Production Service'}
+            </h3>
+
+            <form onSubmit={handleSaveService} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Service Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={serviceForm.title}
+                  onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Starting Price in USD *</label>
+                  <input
+                    type="text"
+                    required
+                    value={serviceForm.startingPriceUSD}
+                    onChange={(e) => setServiceForm({ ...serviceForm, startingPriceUSD: e.target.value })}
+                    placeholder="$3,800"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Starting Price in TZS *</label>
+                  <input
+                    type="text"
+                    required
+                    value={serviceForm.startingPriceTZS}
+                    onChange={(e) => setServiceForm({ ...serviceForm, startingPriceTZS: e.target.value })}
+                    placeholder="TSh 9,800,000"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Coverage Duration</label>
+                <input
+                  type="text"
+                  value={serviceForm.duration}
+                  onChange={(e) => setServiceForm({ ...serviceForm, duration: e.target.value })}
+                  placeholder="e.g. 8 – 12 Hours"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Short Summary</label>
+                <textarea
+                  rows={2}
+                  value={serviceForm.shortDesc}
+                  onChange={(e) => setServiceForm({ ...serviceForm, shortDesc: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Deliverables (One per line)</label>
+                <textarea
+                  rows={4}
+                  value={serviceForm.deliverablesText}
+                  onChange={(e) => setServiceForm({ ...serviceForm, deliverablesText: e.target.value })}
+                  placeholder="Full Day Multi-Camera Coverage&#10;4K Slow Motion YouTube Cut&#10;600+ Retouched Photos"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-mono"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setServiceModalOpen(false)}
+                  className="px-4 py-2 text-xs font-medium text-zinc-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-panda-primary text-xs py-2 px-5 font-semibold"
+                >
+                  Save Service
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: ADD / EDIT PRICING PACKAGE (TZS & USD ONLY) */}
+      {pricingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-xl p-6 bg-[#121316] text-white border border-zinc-800 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold mb-4 font-serif">
+              {editingPricingId ? 'Edit Pricing Package' : 'Add Pricing Package (USD &amp; TZS Only)'}
+            </h3>
+
+            <form onSubmit={handleSavePricing} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Tier Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={pricingForm.name}
+                    onChange={(e) => setPricingForm({ ...pricingForm, name: e.target.value })}
+                    placeholder="e.g. Cinematic Signature"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Badge</label>
+                  <input
+                    type="text"
+                    value={pricingForm.badge}
+                    onChange={(e) => setPricingForm({ ...pricingForm, badge: e.target.value })}
+                    placeholder="e.g. Most Popular"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Subtitle</label>
+                <input
+                  type="text"
+                  value={pricingForm.subtitle}
+                  onChange={(e) => setPricingForm({ ...pricingForm, subtitle: e.target.value })}
+                  placeholder="Target audience or project description..."
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Price in USD ($) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={pricingForm.priceUSD}
+                    onChange={(e) => setPricingForm({ ...pricingForm, priceUSD: e.target.value })}
+                    placeholder="$4,800"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Price in TZS (TSh) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={pricingForm.priceTZS}
+                    onChange={(e) => setPricingForm({ ...pricingForm, priceTZS: e.target.value })}
+                    placeholder="TSh 12,500,000"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="popularCheck"
+                  checked={pricingForm.popular}
+                  onChange={(e) => setPricingForm({ ...pricingForm, popular: e.target.checked })}
+                  className="w-4 h-4 accent-bamboo-500"
+                />
+                <label htmlFor="popularCheck" className="text-xs text-zinc-300 cursor-pointer">
+                  Mark as "Most Popular" Tier (Highlighted with bamboo border &amp; badge)
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Features (One per line)</label>
+                <textarea
+                  rows={5}
+                  value={pricingForm.featuresText}
+                  onChange={(e) => setPricingForm({ ...pricingForm, featuresText: e.target.value })}
+                  placeholder="10 Hours of Full Production Coverage&#10;2 Senior Creatives (Director + Photographer)&#10;8-10 Minute Cinematic YouTube Highlight Film&#10;FAA 8K Drone Aerial Footage Included"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-mono"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setPricingModalOpen(false)}
+                  className="px-4 py-2 text-xs font-medium text-zinc-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-panda-primary text-xs py-2 px-5 font-semibold"
+                >
+                  Save Pricing Package
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: ADD / EDIT CAMERA GEAR */}
+      {gearModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md p-6 bg-[#121316] text-white border border-zinc-800 rounded-3xl shadow-2xl">
+            <h3 className="text-lg font-bold mb-4 font-serif">
+              {editingGearId ? 'Edit Cinema Equipment' : 'Add Camera Equipment'}
+            </h3>
+
+            <form onSubmit={handleSaveGear} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Model / Gear Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={gearForm.name}
+                  onChange={(e) => setGearForm({ ...gearForm, name: e.target.value })}
+                  placeholder="e.g. Sony FX6 Cinema Line"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Role / Function</label>
+                <input
+                  type="text"
+                  value={gearForm.role}
+                  onChange={(e) => setGearForm({ ...gearForm, role: e.target.value })}
+                  placeholder="e.g. Primary 4K 120fps Cinema Camera"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">Specs &amp; Description</label>
+                <textarea
+                  rows={2}
+                  value={gearForm.desc}
+                  onChange={(e) => setGearForm({ ...gearForm, desc: e.target.value })}
+                  placeholder="Sensor type, dynamic range, or lens aperture..."
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setGearModalOpen(false)}
+                  className="px-4 py-2 text-xs font-medium text-zinc-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-panda-primary text-xs py-2 px-5 font-semibold"
+                >
+                  Save Gear
                 </button>
               </div>
             </form>

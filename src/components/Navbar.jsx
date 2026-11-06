@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
 import { Sun, Moon, Search, Menu, ChevronDown, Sparkles, FolderKanban, Users } from 'lucide-react';
+import CurrencySwitcher from './CurrencySwitcher';
 
 export default function Navbar({ onOpenMobileMenu }) {
   const { currentPath, navigate } = useRouter();
@@ -9,7 +10,6 @@ export default function Navbar({ onOpenMobileMenu }) {
   const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -45,7 +45,6 @@ export default function Navbar({ onOpenMobileMenu }) {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-1 lg:gap-2" aria-label="Main Navigation">
-          {/* Home */}
           <button
             onClick={() => navigate('/')}
             className={`px-3 py-2 rounded-full text-xs lg:text-sm font-medium transition-all duration-200 ${
@@ -74,7 +73,6 @@ export default function Navbar({ onOpenMobileMenu }) {
               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${aboutDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Dropdown Menu */}
             {aboutDropdownOpen && (
               <div
                 onMouseLeave={() => setAboutDropdownOpen(false)}
@@ -119,7 +117,6 @@ export default function Navbar({ onOpenMobileMenu }) {
             )}
           </div>
 
-          {/* Services */}
           <button
             onClick={() => navigate('/services')}
             className={`px-3 py-2 rounded-full text-xs lg:text-sm font-medium transition-all duration-200 ${
@@ -131,7 +128,6 @@ export default function Navbar({ onOpenMobileMenu }) {
             Services
           </button>
 
-          {/* Pricing */}
           <button
             onClick={() => navigate('/pricing')}
             className={`px-3 py-2 rounded-full text-xs lg:text-sm font-medium transition-all duration-200 ${
@@ -143,7 +139,6 @@ export default function Navbar({ onOpenMobileMenu }) {
             Pricing
           </button>
 
-          {/* Gallery (Picture & Videos) */}
           <button
             onClick={() => navigate('/gallery')}
             className={`px-3 py-2 rounded-full text-xs lg:text-sm font-medium transition-all duration-200 ${
@@ -155,7 +150,6 @@ export default function Navbar({ onOpenMobileMenu }) {
             Gallery
           </button>
 
-          {/* Contacts */}
           <button
             onClick={() => navigate('/contacts')}
             className={`px-3 py-2 rounded-full text-xs lg:text-sm font-medium transition-all duration-200 ${
@@ -168,9 +162,14 @@ export default function Navbar({ onOpenMobileMenu }) {
           </button>
         </nav>
 
-        {/* Right Controls: Search, Theme Toggle, Book Shoot CTA, Mobile Toggle */}
+        {/* Right Controls: Currency Switcher, Search, Theme Toggle, Book CTA */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Search Button */}
+          
+          {/* Currency Switcher: USD and TZS only */}
+          <div className="hidden lg:block">
+            <CurrencySwitcher />
+          </div>
+
           <button
             onClick={openSearch}
             type="button"
@@ -182,7 +181,6 @@ export default function Navbar({ onOpenMobileMenu }) {
             <kbd className="hidden lg:inline text-[10px] px-1 py-0.2 bg-zinc-200 dark:bg-zinc-900 rounded text-zinc-500 dark:text-zinc-400 font-mono">⌘K</kbd>
           </button>
 
-          {/* Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
             type="button"
@@ -192,7 +190,6 @@ export default function Navbar({ onOpenMobileMenu }) {
             {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-zinc-700" />}
           </button>
 
-          {/* Book Now Button (Desktop) */}
           <button
             onClick={() => navigate('/contacts')}
             className="hidden sm:inline-flex btn-panda-primary text-xs tracking-wider uppercase font-semibold"
@@ -200,7 +197,6 @@ export default function Navbar({ onOpenMobileMenu }) {
             Book Shoot
           </button>
 
-          {/* Mobile Menu Hamburger */}
           <button
             onClick={onOpenMobileMenu}
             type="button"

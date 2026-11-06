@@ -9,16 +9,14 @@ import {
   MapPin,
   Clock,
   MessageSquare,
-  CheckCircle2,
-  Calendar,
-  Layers,
-  DollarSign
+  CheckCircle2
 } from 'lucide-react';
 import CopyButton from '../components/CopyButton';
+import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function Contact() {
   const { navigate } = useRouter();
-  const { data, addInquiry } = useCMS();
+  const { data, currency, addInquiry } = useCMS();
   const { siteSettings, services, socialLinks } = data;
 
   const [form, setForm] = useState({
@@ -27,7 +25,7 @@ export default function Contact() {
     phone: '',
     service: services[0]?.title || 'Wedding Cinematography & Photography',
     eventDate: '',
-    budget: '$5,000 – $10,000',
+    budget: '$5,000 – $10,000 / TSh 13M – 26M',
     message: ''
   });
 
@@ -43,7 +41,7 @@ export default function Contact() {
       phone: '',
       service: services[0]?.title || 'Wedding Cinematography & Photography',
       eventDate: '',
-      budget: '$5,000 – $10,000',
+      budget: '$5,000 – $10,000 / TSh 13M – 26M',
       message: ''
     });
     setTimeout(() => setSubmitted(false), 6000);
@@ -65,7 +63,7 @@ export default function Contact() {
           Let’s Create Something Unforgettable
         </h1>
         <p className="text-xs sm:text-base text-zinc-600 dark:text-zinc-400 mt-3 leading-relaxed">
-          Tell us about your wedding, commercial campaign, or creative film. We reply to all inquiries within 24 hours.
+          Tell us about your wedding, commercial campaign, or creative film. Invoicing available exclusively in <strong>USD ($)</strong> and <strong>TZS (TSh)</strong>.
         </p>
       </div>
 
@@ -154,8 +152,8 @@ export default function Contact() {
           <div className="rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-[#0c0d0f] p-6 text-white text-center relative shadow-sm">
             <div className="h-44 w-full bg-zinc-900 rounded-2xl flex flex-col items-center justify-center border border-zinc-800 p-4">
               <MapPin className="w-8 h-8 text-bamboo-400 mb-2 animate-bounce" />
-              <span className="text-xs font-bold text-white">Downtown Los Angeles Arts District</span>
-              <span className="text-[11px] text-zinc-400 mt-1">Available for worldwide travel &amp; destination commissions</span>
+              <span className="text-xs font-bold text-white">Downtown Arts District &amp; Worldwide Commissions</span>
+              <span className="text-[11px] text-zinc-400 mt-1">Direct bookings in East Africa (Tanzania, Zanzibar) &amp; North America</span>
             </div>
           </div>
 
@@ -163,11 +161,14 @@ export default function Contact() {
 
         {/* Col 2: The Booking & Inquiry Form (7 cols) */}
         <div className="lg:col-span-7 bg-white dark:bg-[#121316] p-8 sm:p-10 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xl">
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white font-serif mb-2">
-            Shoot Reservation Form
-          </h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white font-serif">
+              Shoot Reservation Form
+            </h2>
+            <CurrencySwitcher />
+          </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-8">
-            Please fill in your project details. We will prepare an exact proposal and verify calendar availability.
+            Please fill in your project details. We will prepare an exact proposal in your preferred currency ({currency}).
           </p>
 
           {submitted ? (
@@ -184,7 +185,6 @@ export default function Contact() {
             <form onSubmit={handleSubmit} className="space-y-5">
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Full Name */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Your Name / Brand *
@@ -199,7 +199,6 @@ export default function Contact() {
                   />
                 </div>
 
-                {/* Email */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Email Address *
@@ -216,7 +215,6 @@ export default function Contact() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Phone */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Phone Number
@@ -225,12 +223,11 @@ export default function Contact() {
                     type="tel"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+1 (555) 000-0000 or +255 7..."
                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-bamboo-500 focus:ring-1 focus:ring-bamboo-500 transition-all"
                   />
                 </div>
 
-                {/* Event / Shoot Date */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Target Shoot Date
@@ -245,7 +242,6 @@ export default function Contact() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Service Selection */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Primary Service Needed
@@ -262,25 +258,34 @@ export default function Contact() {
                   </select>
                 </div>
 
-                {/* Budget Range */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Estimated Production Budget
+                    Estimated Budget ({currency})
                   </label>
                   <select
                     value={form.budget}
                     onChange={(e) => setForm({ ...form, budget: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 text-xs sm:text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-bamboo-500 transition-all"
                   >
-                    <option value="Under $3,000">Under $3,000</option>
-                    <option value="$3,000 – $5,000">$3,000 – $5,000</option>
-                    <option value="$5,000 – $10,000">$5,000 – $10,000</option>
-                    <option value="$10,000+">$10,000+ (VIP Masterpiece)</option>
+                    {currency === 'TZS' ? (
+                      <>
+                        <option value="Under TSh 7,500,000">Under TSh 7,500,000</option>
+                        <option value="TSh 7,500,000 – TSh 13,000,000">TSh 7,500,000 – TSh 13,000,000</option>
+                        <option value="TSh 13,000,000 – TSh 26,000,000">TSh 13,000,000 – TSh 26,000,000</option>
+                        <option value="TSh 26,000,000+ (VIP Masterpiece)">TSh 26,000,000+ (VIP Masterpiece)</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="Under $3,000">Under $3,000</option>
+                        <option value="$3,000 – $5,000">$3,000 – $5,000</option>
+                        <option value="$5,000 – $10,000">$5,000 – $10,000</option>
+                        <option value="$10,000+ (VIP Masterpiece)">$10,000+ (VIP Masterpiece)</option>
+                      </>
+                    )}
                   </select>
                 </div>
               </div>
 
-              {/* Message */}
               <div>
                 <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
                   Vision, Location &amp; Shoot Details *
@@ -295,13 +300,12 @@ export default function Contact() {
                 />
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full btn-panda-primary py-4 text-xs sm:text-sm uppercase tracking-wider font-bold shadow-xl"
               >
                 <Send className="w-4 h-4" />
-                <span>Send Production Inquiry</span>
+                <span>Send Production Inquiry ({currency})</span>
               </button>
             </form>
           )}

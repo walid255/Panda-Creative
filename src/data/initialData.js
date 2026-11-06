@@ -1,4 +1,7 @@
 export const initialData = {
+  // Global Currency Preference: ONLY USD and TZS as required!
+  currency: "USD", // "USD" | "TZS"
+
   siteSettings: {
     name: "Panda Creative",
     tagline: "Cinematic Photography & Film Studio",
@@ -15,6 +18,46 @@ export const initialData = {
     googleSearchConsole: "google4e92a83bd0a39a9c",
     canonicalDomain: "https://pandacreative.studio",
     adminPassword: "panda" // Default password for CMS demo (can be changed in settings)
+  },
+
+  // Homepage CMS Content
+  homeContent: {
+    badge: "Award-Winning Photography & 4K YouTube Cinematography",
+    headlinePart1: "Every Frame a",
+    headlineGradient: "Masterpiece",
+    description: "We capture weddings, brand commercials, and editorial stories with Hollywood cinema gear and timeless soul.",
+    heroImage: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=80",
+    primaryCtaText: "Reserve Shoot Date",
+    secondaryCtaText: "Watch 4K Showreel",
+    showreelYoutubeId: "LXb3EKWsInQ",
+    showreelTitle: "Panda Creative 4K Cinematic Master Showreel",
+    stats: [
+      { id: "s1", value: "650+", label: "Shoots Completed" },
+      { id: "s2", value: "10+", label: "Years Experience" },
+      { id: "s3", value: "4K / 8K", label: "Cine Line Gear" },
+      { id: "s4", value: "100%", label: "Client Love" }
+    ]
+  },
+
+  // About Us CMS Content
+  aboutContent: {
+    badge: "The Heart Behind The Lens",
+    title: "About Panda Creative Studio",
+    subtitle: "Born from a passion for monochrome elegance, dramatic contrasts, and timeless human emotion.",
+    storyTitle: "Why the Panda? Contrast, Balance & Authenticity.",
+    storyParagraph1: "Just like the iconic panda, our visual identity is built on high contrast: deep velvety blacks, pure luminous whites, and subtle organic green accents. We believe the most powerful photographs and films are not oversaturated or trendy—they are balanced, emotive, and honest.",
+    storyParagraph2: "Founded in 2018, we have grown into a multi-disciplinary team of cinematographers, FAA drone pilots, sound engineers, and fine-art photographers. Over 650+ couples and brands worldwide have trusted us with their most milestone moments.",
+    directorImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
+    quoteBadgeTitle: "Cinema Grade Precision",
+    quoteBadgeText: "Every project is color graded on reference monitors in DaVinci Resolve Studio.",
+    gearList: [
+      { id: "g1", name: "Sony FX6 Cinema Line", role: "Primary 4K 120fps Cinema Camera", desc: "Full-frame 15+ stops dynamic range with internal electronic variable ND." },
+      { id: "g2", name: "Canon EOS R5 C 8K", role: "Hybrid Stills & 8K RAW Cinema", desc: "45MP high-resolution stills and ProRes RAW video." },
+      { id: "g3", name: "RED Komodo 6K", role: "High-Speed Commercial Cinema", desc: "Global shutter for dynamic automotive and high-action commercial campaigns." },
+      { id: "g4", name: "DJI Inspire 3 Drone", role: "FAA Licensed Aerial Cinematography", desc: "Full-frame 8K Zenmuse X9-8K camera system for sweeping cinematic vistas." },
+      { id: "g5", name: "Cooke & Sony G-Master Primes", role: "Cine Optics", desc: "T1.4 – T2.0 fast aperture lenses providing buttery bokeh and rich skin tones." },
+      { id: "g6", name: "Sennheiser & Deity Pro Audio", role: "Sound Recording", desc: "32-bit float broadcast wireless recording for pristine wedding vows and commercial voiceovers." }
+    ]
   },
 
   socialLinks: [
@@ -92,6 +135,7 @@ export const initialData = {
     }
   ],
 
+  // Gallery Items (Photos and YouTube Videos)
   galleryItems: [
     // PHOTOS
     {
@@ -197,7 +241,7 @@ export const initialData = {
       type: "video",
       title: "Cinematic Wedding Film - Big Sur Romance",
       category: "Weddings",
-      youtubeId: "LXb3EKWsInQ", // 4K Cinematic Nature & Visuals
+      youtubeId: "LXb3EKWsInQ",
       youtubeUrl: "https://www.youtube.com/watch?v=LXb3EKWsInQ",
       thumbnail: "https://img.youtube.com/vi/LXb3EKWsInQ/maxresdefault.jpg",
       description: "4K Sony FX6 & DJI Inspire 3 highlight film celebrating Eleanor & James' oceanfront wedding in Big Sur.",
@@ -212,7 +256,7 @@ export const initialData = {
       type: "video",
       title: "Porsche GT3 RS - Brand Commercial Reel",
       category: "Commercial",
-      youtubeId: "ScMzIvxBSi4", // Dynamic 4K Car / Speed Reel
+      youtubeId: "ScMzIvxBSi4",
       youtubeUrl: "https://www.youtube.com/watch?v=ScMzIvxBSi4",
       thumbnail: "https://img.youtube.com/vi/ScMzIvxBSi4/maxresdefault.jpg",
       description: "High-octane commercial film shot on RED Komodo 6K on closed mountain roads in Colorado.",
@@ -227,7 +271,7 @@ export const initialData = {
       type: "video",
       title: "Tokyo After Dark - 8K Anamorphic Short",
       category: "Cinematic",
-      youtubeId: "Bey4XXJAqS8", // 4K/8K Tokyo / City Visuals
+      youtubeId: "Bey4XXJAqS8",
       youtubeUrl: "https://www.youtube.com/watch?v=Bey4XXJAqS8",
       thumbnail: "https://img.youtube.com/vi/Bey4XXJAqS8/maxresdefault.jpg",
       description: "Atmospheric short film capturing the neon pulse and quiet alleyways of Shinjuku and Ginza.",
@@ -242,7 +286,7 @@ export const initialData = {
       type: "video",
       title: "Iceland Aerial Drone Odyssey",
       category: "Drone",
-      youtubeId: "ysz5S6PUM-U", // Nature aerial 
+      youtubeId: "ysz5S6PUM-U",
       youtubeUrl: "https://www.youtube.com/watch?v=ysz5S6PUM-U",
       thumbnail: "https://img.youtube.com/vi/ysz5S6PUM-U/maxresdefault.jpg",
       description: "Glacial waterfalls, black sand beaches, and active volcanic fissures captured in ProRes RAW.",
@@ -257,7 +301,7 @@ export const initialData = {
       type: "video",
       title: "Fashion Week Runway - Paris Haute Couture",
       category: "Fashion",
-      youtubeId: "kJQP7kiw5Fk", // Fashion / Music visual
+      youtubeId: "kJQP7kiw5Fk",
       youtubeUrl: "https://www.youtube.com/watch?v=kJQP7kiw5Fk",
       thumbnail: "https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg",
       description: "Backstage intimate moments and dynamic runway slow-motion cinematography in Paris.",
@@ -269,6 +313,91 @@ export const initialData = {
     }
   ],
 
+  // Dedicated Portfolio Showcase Items (Admin managed)
+  portfolioItems: [
+    {
+      id: "port-1",
+      title: "Coastal Vows at Big Sur",
+      category: "Weddings",
+      type: "video",
+      youtubeId: "LXb3EKWsInQ",
+      youtubeUrl: "https://www.youtube.com/watch?v=LXb3EKWsInQ",
+      thumbnail: "https://img.youtube.com/vi/LXb3EKWsInQ/maxresdefault.jpg",
+      description: "Oceanfront cinematic wedding feature captured on Sony FX6 4K with drone establishing vistas.",
+      client: "Eleanor & James",
+      year: "2026",
+      gear: "Sony FX6 + Cooke Cine Primes",
+      featured: true
+    },
+    {
+      id: "port-2",
+      title: "Apex High-Performance Automotive Commercial",
+      category: "Commercial",
+      type: "video",
+      youtubeId: "ScMzIvxBSi4",
+      youtubeUrl: "https://www.youtube.com/watch?v=ScMzIvxBSi4",
+      thumbnail: "https://img.youtube.com/vi/ScMzIvxBSi4/maxresdefault.jpg",
+      description: "High-octane commercial campaign shot for television broadcast and YouTube 4K HDR.",
+      client: "Apex Automotive",
+      year: "2026",
+      gear: "RED Komodo 6K + Tilta Russian Arm",
+      featured: true
+    },
+    {
+      id: "port-3",
+      title: "Noir High-Contrast Editorial",
+      category: "Fashion",
+      type: "photo",
+      url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
+      description: "Monochrome panda-themed studio portraiture published in international style editions.",
+      client: "Vogue Special Edition",
+      year: "2026",
+      gear: "Canon R5 C + 85mm f/1.2",
+      featured: true
+    },
+    {
+      id: "port-4",
+      title: "Glacial Highlands Aerial Expedition",
+      category: "Drone",
+      type: "video",
+      youtubeId: "ysz5S6PUM-U",
+      youtubeUrl: "https://www.youtube.com/watch?v=ysz5S6PUM-U",
+      thumbnail: "https://img.youtube.com/vi/ysz5S6PUM-U/maxresdefault.jpg",
+      description: "Epic ProRes RAW aerial landscape exploration with dual-pilot flight permits.",
+      client: "Nordic Tourism Board",
+      year: "2026",
+      gear: "DJI Inspire 3 Zenmuse X9-8K",
+      featured: true
+    },
+    {
+      id: "port-5",
+      title: "Geneva Luxury Horology Macro Stills",
+      category: "Commercial",
+      type: "photo",
+      url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80",
+      description: "Precision watchmaker advertising stills with specialized light-painting techniques.",
+      client: "Vacheron & Co.",
+      year: "2026",
+      gear: "Sony FX6 + 90mm f/2.8 Macro",
+      featured: true
+    },
+    {
+      id: "port-6",
+      title: "Tokyo After Dark Neon Reverie",
+      category: "Cinematic",
+      type: "video",
+      youtubeId: "Bey4XXJAqS8",
+      youtubeUrl: "https://www.youtube.com/watch?v=Bey4XXJAqS8",
+      thumbnail: "https://img.youtube.com/vi/Bey4XXJAqS8/maxresdefault.jpg",
+      description: "Anamorphic night street documentary in Shinjuku and Shibuya alleys.",
+      client: "Cultural Cinema Foundation",
+      year: "2026",
+      gear: "Sony FX3 + Atlas Orion Anamorphic",
+      featured: true
+    }
+  ],
+
+  // Services with PRICING ONLY IN USD AND TZS!
   services: [
     {
       id: "svc-weddings",
@@ -285,7 +414,8 @@ export const initialData = {
         "600+ Edited High-Resolution Photographs with Online Gallery",
         "Licensed Custom Film Scoring & Audio Mixing"
       ],
-      startingPrice: "$3,800",
+      startingPriceUSD: "$3,800",
+      startingPriceTZS: "TSh 9,800,000",
       duration: "8 – 12 Hours"
     },
     {
@@ -303,7 +433,8 @@ export const initialData = {
         "Color Grading in DaVinci Resolve",
         "Full Commercial Usage & Broadcast Rights"
       ],
-      startingPrice: "$4,500",
+      startingPriceUSD: "$4,500",
+      startingPriceTZS: "TSh 11,700,000",
       duration: "1 – 3 Production Days"
     },
     {
@@ -320,7 +451,8 @@ export const initialData = {
         "High-Resolution 48MP Aerial Stills",
         "Airspace Clearances & Flight Permissions Included"
       ],
-      startingPrice: "$1,400",
+      startingPriceUSD: "$1,400",
+      startingPriceTZS: "TSh 3,600,000",
       duration: "Half / Full Day"
     },
     {
@@ -337,7 +469,8 @@ export const initialData = {
         "Private Proofing Web Gallery within 48 Hours",
         "Express Delivery Available"
       ],
-      startingPrice: "$1,200",
+      startingPriceUSD: "$1,200",
+      startingPriceTZS: "TSh 3,100,000",
       duration: "2 – 4 Hours"
     },
     {
@@ -354,7 +487,8 @@ export const initialData = {
         "Mastered in 4K DCI for YouTube & Apple Music",
         "Behind-the-Scenes Photo & Video Package"
       ],
-      startingPrice: "$3,200",
+      startingPriceUSD: "$3,200",
+      startingPriceTZS: "TSh 8,300,000",
       duration: "2 Production Days"
     },
     {
@@ -371,17 +505,20 @@ export const initialData = {
         "Dialogue De-Noising & Sound Design",
         "Deliverables in ProRes 4444 XQ and H.265 Master"
       ],
-      startingPrice: "$950",
+      startingPriceUSD: "$950",
+      startingPriceTZS: "TSh 2,500,000",
       duration: "3 – 5 Business Days"
     }
   ],
 
+  // PRICING PACKAGES - EXCLUSIVELY IN TZS AND USD!
   pricingPackages: [
     {
       id: "tier-silver",
       name: "Essential Collection",
       subtitle: "Perfect for intimate gatherings, indie commercials, and portrait sessions",
-      price: "$2,400",
+      priceUSD: "$2,400",
+      priceTZS: "TSh 6,200,000",
       badge: "Standard",
       popular: false,
       features: [
@@ -398,7 +535,8 @@ export const initialData = {
       id: "tier-gold",
       name: "Cinematic Signature",
       subtitle: "Our most requested hybrid photo & video package for weddings and luxury brands",
-      price: "$4,800",
+      priceUSD: "$4,800",
+      priceTZS: "TSh 12,500,000",
       badge: "Most Popular",
       popular: true,
       features: [
@@ -418,7 +556,8 @@ export const initialData = {
       id: "tier-platinum",
       name: "Masterpiece Elite VIP",
       subtitle: "The ultimate red-carpet production for destination events, luxury campaigns & festivals",
-      price: "$8,500",
+      priceUSD: "$8,500",
+      priceTZS: "TSh 22,000,000",
       badge: "Luxury VIP",
       popular: false,
       features: [
@@ -436,6 +575,38 @@ export const initialData = {
     }
   ],
 
+  // Pricing Add-ons in USD and TZS
+  pricingAddOns: [
+    {
+      id: "addon-1",
+      name: "FAA Drone Aerial Cinematography Add-on",
+      priceUSD: "$650",
+      priceTZS: "TSh 1,700,000",
+      desc: "Dual operator 8K aerials for ceremony & venue establishers"
+    },
+    {
+      id: "addon-2",
+      name: "RAW Master Footage Hard Drive (2TB Rugged SSD)",
+      priceUSD: "$450",
+      priceTZS: "TSh 1,170,000",
+      desc: "Every unedited take, audio scratch, and B-roll file shipped to your door"
+    },
+    {
+      id: "addon-3",
+      name: "Rush Turnaround Guarantee (7 Business Days)",
+      priceUSD: "$800",
+      priceTZS: "TSh 2,080,000",
+      desc: "Jump straight to the front of the editing queue for immediate YouTube release"
+    },
+    {
+      id: "addon-4",
+      name: "Rehearsal Dinner / Welcome Party Coverage (3 Hours)",
+      priceUSD: "$950",
+      priceTZS: "TSh 2,470,000",
+      desc: "Candid photography and speeches from the eve of your wedding"
+    }
+  ],
+
   faqs: [
     {
       question: "How do you deliver our final videos and photographs?",
@@ -444,6 +615,10 @@ export const initialData = {
     {
       question: "Can we upload or host our videos through YouTube?",
       answer: "Yes! YouTube is our preferred streaming and embed partner because it supports pristine 4K HDR playback on smart TVs, phones, and laptops with zero buffering. Through our CMS, you can easily link any YouTube video URL or ID to display instantly in your gallery."
+    },
+    {
+      question: "What currencies do you accept for bookings and payments?",
+      answer: "We invoice and accept payments exclusively in US Dollars (USD) and Tanzanian Shillings (TZS). You can switch currencies at any time on our pricing page to view exact rates."
     },
     {
       question: "What camera gear and lenses do you use on shoot days?",
@@ -455,7 +630,7 @@ export const initialData = {
     },
     {
       question: "Do you travel for destination weddings and international shoots?",
-      answer: "Absolutely! We have captured love stories and commercial campaigns in Italy, France, Japan, Iceland, and throughout North America. Travel fees are transparent and itemized without hidden markups."
+      answer: "Absolutely! We have captured love stories and commercial campaigns in Italy, France, Japan, Iceland, Tanzania (Serengeti & Zanzibar), and throughout North America. Travel fees are transparent and itemized without hidden markups."
     },
     {
       question: "What is your backup and archiving policy for client footage?",
@@ -566,9 +741,9 @@ export const initialData = {
       name: "Charlotte Montclaire",
       email: "charlotte@montclairebrands.com",
       phone: "+1 (310) 555-0198",
-      service: "Commercial & Brand Campaigns",
+      service: "Commercial & Brand Storytelling",
       date: "2026-11-04",
-      budget: "$5,000 – $10,000",
+      budget: "$5,000 – $10,000 / TSh 13M – 26M",
       eventDate: "2027-02-14",
       utmSource: "google_search",
       utmCampaign: "luxury_commercial_q4",
@@ -582,7 +757,7 @@ export const initialData = {
       phone: "+1 (415) 555-8371",
       service: "Luxury Wedding Cinematography & Photography",
       date: "2026-11-02",
-      budget: "$5,000 – $10,000",
+      budget: "$5,000 – $10,000 / TSh 13M – 26M",
       eventDate: "2027-06-20",
       utmSource: "instagram",
       utmCampaign: "big_sur_reel",
