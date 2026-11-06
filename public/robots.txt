@@ -1,0 +1,11 @@
+# Robots.txt for Panda Creative Photo & Cinematography
+# https://pandacreative.studio
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://pandacreative.studio/sitemap.xml

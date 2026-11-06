@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="logoPandaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#27272a" />
+      <stop offset="100%" stop-color="#09090b" />
+    </linearGradient>
+    <linearGradient id="logoBambooGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="logoGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#10b981" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Group: Emblem (Camera + Panda) -->
+  <g transform="translate(10, 10)">
+    <!-- Outer Cine Lens Body -->
+    <circle cx="50" cy="50" r="48" fill="url(#logoPandaGrad)" stroke="#3f3f46" stroke-width="2"/>
+    <circle cx="50" cy="50" r="44" fill="none" stroke="#52525b" stroke-width="1" stroke-dasharray="3 3"/>
+    
+    <!-- Panda Ears -->
+    <ellipse cx="24" cy="20" rx="12" ry="10" fill="#09090b" transform="rotate(-20 24 20)"/>
+    <ellipse cx="24" cy="20" rx="7" ry="5" fill="#27272a" transform="rotate(-20 24 20)"/>
+    
+    <ellipse cx="76" cy="20" rx="12" ry="10" fill="#09090b" transform="rotate(20 76 20)"/>
+    <ellipse cx="76" cy="20" rx="7" ry="5" fill="#27272a" transform="rotate(20 76 20)"/>
+    
+    <!-- Panda Face (White) -->
+    <path d="M 22 45 C 22 26, 78 26, 78 45 C 80 64, 70 82, 50 84 C 30 82, 20 64, 22 45 Z" fill="#ffffff"/>
+    
+    <!-- Aperture Blades Guidelines -->
+    <circle cx="50" cy="52" r="32" fill="none" stroke="#e4e4e7" stroke-width="1.2" stroke-dasharray="5 3"/>
+    
+    <!-- Eye Patches -->
+    <ellipse cx="37" cy="48" rx="8" ry="12" fill="#18181b" transform="rotate(-15 37 48)"/>
+    <ellipse cx="63" cy="48" rx="8" ry="12" fill="#18181b" transform="rotate(15 63 48)"/>
+    
+    <!-- Camera Cine Coated Emerald Eyes -->
+    <circle cx="38" cy="49" r="4.5" fill="url(#logoBambooGrad)" filter="url(#logoGlow)"/>
+    <circle cx="37" cy="47.5" r="1.5" fill="#ffffff"/>
+    
+    <circle cx="62" cy="49" r="4.5" fill="url(#logoBambooGrad)" filter="url(#logoGlow)"/>
+    <circle cx="61" cy="47.5" r="1.5" fill="#ffffff"/>
+    
+    <!-- Snout & Nose -->
+    <ellipse cx="50" cy="64" rx="7.5" ry="5" fill="#f4f4f5"/>
+    <path d="M 47 62 Q 50 60 53 62 Q 50 65 47 62 Z" fill="#09090b"/>
+    <path d="M 50 64 L 50 68 M 47 68 Q 50 70 53 68" fill="none" stroke="#09090b" stroke-width="1.5" stroke-linecap="round"/>
+    
+    <!-- Red Rec Indicator -->
+    <circle cx="78" cy="76" r="5" fill="#ef4444"/>
+    <circle cx="78" cy="76" r="3" fill="#fca5a5"/>
+  </g>
+
+  <!-- Typography -->
+  <!-- Main Brand Name -->
+  <text x="130" y="58" font-family="'Inter', 'Montserrat', 'Helvetica Neue', sans-serif" font-weight="900" font-size="34" letter-spacing="4" fill="#ffffff">
+    PANDA<tspan fill="#10b981">.</tspan><tspan fill="#f4f4f5">CREATIVE</tspan>
+  </text>
+  
+  <!-- Subtitle / Tagline -->
+  <text x="132" y="84" font-family="'Inter', sans-serif" font-weight="600" font-size="11" letter-spacing="6" fill="#a1a1aa">
+    PHOTO &amp; CINEMATOGRAPHY
+  </text>
+
+  <!-- Decorative Accent Line -->
+  <line x1="132" y1="94" x2="380" y2="94" stroke="#27272a" stroke-width="1.5"/>
+  <line x1="132" y1="94" x2="190" y2="94" stroke="#10b981" stroke-width="2"/>
+</svg>
