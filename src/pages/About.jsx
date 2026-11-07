@@ -50,7 +50,14 @@ export default function About() {
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
-              onClick={() => navigate('/contacts')}
+              onClick={() => {
+                const directorsSection = document.getElementById('studio-directors');
+                if (directorsSection) {
+                  directorsSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  navigate('/contacts');
+                }
+              }}
               className="btn-panda-secondary text-xs sm:text-sm px-6 py-3"
             >
               <span>Meet The Directors</span>
@@ -106,6 +113,43 @@ export default function About() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Director profiles managed in the CMS */}
+      <section id="studio-directors" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="text-xs font-bold uppercase tracking-widest text-bamboo-500 mb-2 block">
+            The People Behind the Lens
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-bold text-zinc-900 dark:text-white font-serif">
+            Meet the Directors
+          </h2>
+        </div>
+        {ac.directors?.length ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {ac.directors.map((director) => (
+              <article key={director.id} className="overflow-hidden rounded-3xl bg-zinc-50 dark:bg-[#121316] border border-zinc-200 dark:border-zinc-800">
+                {director.image && (
+                  <img
+                    src={director.image}
+                    alt={director.name}
+                    className="w-full aspect-[4/3] object-cover"
+                    loading="lazy"
+                  />
+                )}
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white">{director.name}</h3>
+                  <p className="text-xs font-semibold text-bamboo-500 mt-1">{director.role}</p>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mt-3">{director.bio}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+            Director profiles will be featured here soon.
+          </p>
+        )}
       </section>
 
       {/* Cinema Gear Breakdown (Editable via CMS) */}

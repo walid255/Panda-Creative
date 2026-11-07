@@ -10,12 +10,11 @@ import {
   ChevronDown,
   Video
 } from 'lucide-react';
-import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function Home() {
   const { navigate } = useRouter();
   const { data, currency } = useCMS();
-  const { homeContent, galleryItems, services, faqs, testimonials } = data;
+  const { homeContent, galleryItems, services, faqs, testimonials = [] } = data;
 
   const [activeFaq, setActiveFaq] = useState(0);
   const [activeVideoModal, setActiveVideoModal] = useState(null);
@@ -30,6 +29,10 @@ export default function Home() {
     primaryCtaText: "Reserve Shoot Date",
     secondaryCtaText: "Watch 4K Showreel",
     showreelYoutubeId: "LXb3EKWsInQ",
+    servicesSectionTitle: "Our Core Creative Services",
+    servicesSectionDescription: "From intimate weddings to large commercial campaigns, we bring unmatched visual discipline.",
+    testimonialsEyebrow: "Client Praise",
+    testimonialsTitle: "Trusted by Couples & Global Brands",
     stats: [
       { id: "s1", value: "650+", label: "Shoots Completed" },
       { id: "s2", value: "10+", label: "Years Experience" },
@@ -245,10 +248,10 @@ export default function Home() {
             Tailored Production
           </span>
           <h2 className="text-2xl sm:text-4xl font-bold text-zinc-900 dark:text-white font-serif">
-            Our Core Creative Services
+            {hc.servicesSectionTitle || 'Our Core Creative Services'}
           </h2>
           <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-            From intimate weddings to large commercial campaigns, we bring unmatched visual discipline.
+            {hc.servicesSectionDescription}
           </p>
         </div>
 
@@ -295,17 +298,22 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-xs font-bold uppercase tracking-widest text-bamboo-500 mb-2 block">
-              Client Praise
+              {hc.testimonialsEyebrow || 'Client Praise'}
             </span>
             <h2 className="text-2xl sm:text-4xl font-bold text-zinc-900 dark:text-white font-serif">
-              Trusted by Couples &amp; Global Brands
+              {hc.testimonialsTitle || 'Trusted by Couples & Global Brands'}
             </h2>
+            {hc.testimonialsDescription && (
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-3">
+                {hc.testimonialsDescription}
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((test, index) => (
               <div
-                key={index}
+                key={test.id || index}
                 className="p-8 rounded-3xl bg-white dark:bg-[#121316] border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between"
               >
                 <div>
@@ -320,12 +328,18 @@ export default function Home() {
                 </div>
 
                 <div className="flex items-center gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                  <img
-                    src={test.avatar}
-                    alt={test.name}
-                    className="w-10 h-10 rounded-full object-cover border border-zinc-300 dark:border-zinc-700"
-                    loading="lazy"
-                  />
+                  {test.avatar ? (
+                    <img
+                      src={test.avatar}
+                      alt={test.name}
+                      className="w-10 h-10 rounded-full object-cover border border-zinc-300 dark:border-zinc-700"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div aria-hidden="true" className="w-10 h-10 rounded-full bg-bamboo-500/15 text-bamboo-500 flex items-center justify-center font-bold">
+                      {test.name?.charAt(0) || '?'}
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-xs font-bold text-zinc-900 dark:text-white">
                       {test.name}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
-import { Sparkles, Printer, Play, X, Camera, Video, ExternalLink } from 'lucide-react';
+import { Sparkles, Play, X, Camera, Video, ExternalLink } from 'lucide-react';
 import CopyButton from '../components/CopyButton';
 
 export default function Portfolio() {
@@ -42,14 +42,6 @@ export default function Portfolio() {
 
         {/* Action Buttons */}
         <div className="mt-4 md:mt-0 flex items-center gap-2">
-          <button
-            onClick={() => window.print()}
-            type="button"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-white hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700/60 transition-colors allow-print"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Print Showcase</span>
-          </button>
           <button
             onClick={() => navigate('/contacts')}
             className="btn-panda-primary text-xs px-5 py-2.5 uppercase tracking-wider font-bold"

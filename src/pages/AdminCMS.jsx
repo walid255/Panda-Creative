@@ -26,17 +26,15 @@ import {
   Camera,
   Video,
   ExternalLink,
-  Sparkles
+  Sparkles,
+  Star
 } from 'lucide-react';
 import CopyButton from '../components/CopyButton';
-import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function AdminCMS() {
   const { navigate } = useRouter();
   const {
     data,
-    currency,
-    setCurrency,
     isAdminLoggedIn,
     adminLogin,
     adminLogout,
@@ -45,6 +43,9 @@ export default function AdminCMS() {
     addGearItem,
     updateGearItem,
     deleteGearItem,
+    addDirector,
+    updateDirector,
+    deleteDirector,
     addPortfolioItem,
     updatePortfolioItem,
     deletePortfolioItem,
@@ -57,6 +58,10 @@ export default function AdminCMS() {
     addPricingAddOn,
     updatePricingAddOn,
     deletePricingAddOn,
+    updatePricingContent,
+    addTestimonial,
+    updateTestimonial,
+    deleteTestimonial,
     addGalleryItem,
     updateGalleryItem,
     deleteGalleryItem,
@@ -80,6 +85,8 @@ export default function AdminCMS() {
     services,
     pricingPackages,
     pricingAddOns,
+    pricingContent,
+    testimonials = [],
     socialLinks,
     inquiries,
     newsletterSubscribers
@@ -160,6 +167,24 @@ export default function AdminCMS() {
     role: '',
     desc: ''
   });
+  const [editingDirectorId, setEditingDirectorId] = useState(null);
+  const [directorForm, setDirectorForm] = useState({ name: '', role: '', bio: '', image: '' });
+  const [editingTestimonialId, setEditingTestimonialId] = useState(null);
+  const [testimonialForm, setTestimonialForm] = useState({
+    name: '',
+    role: '',
+    avatar: '',
+    quote: '',
+    rating: 5,
+    date: ''
+  });
+  const [editingPricingAddOnId, setEditingPricingAddOnId] = useState(null);
+  const [pricingAddOnForm, setPricingAddOnForm] = useState({
+    name: '',
+    desc: '',
+    priceUSD: '',
+    priceTZS: ''
+  });
 
   // Homepage Form State
   const [homeForm, setHomeForm] = useState({
@@ -172,6 +197,11 @@ export default function AdminCMS() {
     secondaryCtaText: homeContent?.secondaryCtaText || "Watch 4K Showreel",
     showreelYoutubeId: homeContent?.showreelYoutubeId || "LXb3EKWsInQ",
     showreelTitle: homeContent?.showreelTitle || "4K Master Showreel",
+    servicesSectionTitle: homeContent?.servicesSectionTitle || "Our Core Creative Services",
+    servicesSectionDescription: homeContent?.servicesSectionDescription || "",
+    testimonialsEyebrow: homeContent?.testimonialsEyebrow || "Client Praise",
+    testimonialsTitle: homeContent?.testimonialsTitle || "Trusted by Couples & Global Brands",
+    testimonialsDescription: homeContent?.testimonialsDescription || "",
     stat1Value: homeContent?.stats?.[0]?.value || "650+",
     stat1Label: homeContent?.stats?.[0]?.label || "Shoots Completed",
     stat2Value: homeContent?.stats?.[1]?.value || "10+",
@@ -193,6 +223,10 @@ export default function AdminCMS() {
     directorImage: aboutContent?.directorImage || "",
     quoteBadgeTitle: aboutContent?.quoteBadgeTitle || "Cinema Grade Precision",
     quoteBadgeText: aboutContent?.quoteBadgeText || ""
+  });
+  const [pricingSectionForm, setPricingSectionForm] = useState({
+    addOnsTitle: pricingContent?.addOnsTitle || "Optional Production Enhancements (USD & TZS)",
+    addOnsDescription: pricingContent?.addOnsDescription || ""
   });
 
   // Site Settings Form State
@@ -218,6 +252,11 @@ export default function AdminCMS() {
       secondaryCtaText: homeForm.secondaryCtaText,
       showreelYoutubeId: extractYouTubeId(homeForm.showreelYoutubeId),
       showreelTitle: homeForm.showreelTitle,
+      servicesSectionTitle: homeForm.servicesSectionTitle,
+      servicesSectionDescription: homeForm.servicesSectionDescription,
+      testimonialsEyebrow: homeForm.testimonialsEyebrow,
+      testimonialsTitle: homeForm.testimonialsTitle,
+      testimonialsDescription: homeForm.testimonialsDescription,
       stats: [
         { id: "s1", value: homeForm.stat1Value, label: homeForm.stat1Label },
         { id: "s2", value: homeForm.stat2Value, label: homeForm.stat2Label },
@@ -231,6 +270,45 @@ export default function AdminCMS() {
   const handleSaveAbout = (e) => {
     e.preventDefault();
     updateAboutContent(aboutForm);
+  };
+
+  const handleSaveDirector = (e) => {
+    e.preventDefault();
+    if (editingDirectorId) {
+      updateDirector(editingDirectorId, directorForm);
+    } else {
+      addDirector(directorForm);
+    }
+    setEditingDirectorId(null);
+    setDirectorForm({ name: '', role: '', bio: '', image: '' });
+  };
+
+  const handleSaveTestimonial = (e) => {
+    e.preventDefault();
+    const item = { ...testimonialForm, rating: Number(testimonialForm.rating) };
+    if (editingTestimonialId) {
+      updateTestimonial(editingTestimonialId, item);
+    } else {
+      addTestimonial(item);
+    }
+    setEditingTestimonialId(null);
+    setTestimonialForm({ name: '', role: '', avatar: '', quote: '', rating: 5, date: '' });
+  };
+
+  const handleSavePricingAddOn = (e) => {
+    e.preventDefault();
+    if (editingPricingAddOnId) {
+      updatePricingAddOn(editingPricingAddOnId, pricingAddOnForm);
+    } else {
+      addPricingAddOn(pricingAddOnForm);
+    }
+    setEditingPricingAddOnId(null);
+    setPricingAddOnForm({ name: '', desc: '', priceUSD: '', priceTZS: '' });
+  };
+
+  const handleSavePricingSection = (e) => {
+    e.preventDefault();
+    updatePricingContent(pricingSectionForm);
   };
 
   // Save Gallery Item
@@ -429,13 +507,12 @@ export default function AdminCMS() {
                 Studio CMS Admin Panel
               </h1>
               <span className="text-xs text-bamboo-400">
-                Connected: {siteSettings.name} • Active Pricing Currency: <strong>{currency} (USD &amp; TZS Supported)</strong>
+                Connected: {siteSettings.name} • USD and TZS prices are editable below
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <CurrencySwitcher />
             <button
               onClick={() => navigate('/')}
               className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition-colors"
@@ -482,6 +559,16 @@ export default function AdminCMS() {
           >
             <Users className="w-3.5 h-3.5" />
             <span>About Us &amp; Gear</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('testimonials')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+              activeTab === 'testimonials' ? 'bg-bamboo-500 text-white shadow-md' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Star className="w-3.5 h-3.5" />
+            <span>Client Praise ({testimonials.length})</span>
           </button>
 
           <button
@@ -801,6 +888,59 @@ export default function AdminCMS() {
                 </div>
               </div>
 
+              <div className="pt-5 border-t border-zinc-800 space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-bamboo-400">Homepage Services &amp; Testimonials</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Services Section Heading</label>
+                    <input
+                      type="text"
+                      value={homeForm.servicesSectionTitle}
+                      onChange={(e) => setHomeForm({ ...homeForm, servicesSectionTitle: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Testimonials Eyebrow</label>
+                    <input
+                      type="text"
+                      value={homeForm.testimonialsEyebrow}
+                      onChange={(e) => setHomeForm({ ...homeForm, testimonialsEyebrow: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Services Section Description</label>
+                  <textarea
+                    rows={2}
+                    value={homeForm.servicesSectionDescription}
+                    onChange={(e) => setHomeForm({ ...homeForm, servicesSectionDescription: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Testimonials Section Heading</label>
+                    <input
+                      type="text"
+                      value={homeForm.testimonialsTitle}
+                      onChange={(e) => setHomeForm({ ...homeForm, testimonialsTitle: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 mb-1">Testimonials Description</label>
+                    <input
+                      type="text"
+                      value={homeForm.testimonialsDescription}
+                      onChange={(e) => setHomeForm({ ...homeForm, testimonialsDescription: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <button
                 type="submit"
                 className="btn-panda-primary text-xs py-2.5 px-6 font-semibold"
@@ -825,11 +965,29 @@ export default function AdminCMS() {
             <form onSubmit={handleSaveAbout} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">About Page Badge</label>
+                  <input
+                    type="text"
+                    value={aboutForm.badge}
+                    onChange={(e) => setAboutForm({ ...aboutForm, badge: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div>
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">About Page Header Title</label>
                   <input
                     type="text"
                     value={aboutForm.title}
                     onChange={(e) => setAboutForm({ ...aboutForm, title: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">About Page Subtitle</label>
+                  <textarea
+                    rows={2}
+                    value={aboutForm.subtitle}
+                    onChange={(e) => setAboutForm({ ...aboutForm, subtitle: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
                   />
                 </div>
@@ -874,6 +1032,27 @@ export default function AdminCMS() {
                 />
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Quote Badge Title</label>
+                  <input
+                    type="text"
+                    value={aboutForm.quoteBadgeTitle}
+                    onChange={(e) => setAboutForm({ ...aboutForm, quoteBadgeTitle: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">Quote Badge Text</label>
+                  <textarea
+                    rows={2}
+                    value={aboutForm.quoteBadgeText}
+                    onChange={(e) => setAboutForm({ ...aboutForm, quoteBadgeText: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+              </div>
+
               <button
                 type="submit"
                 className="btn-panda-primary text-xs py-2.5 px-6 font-semibold"
@@ -881,6 +1060,105 @@ export default function AdminCMS() {
                 Save About Story
               </button>
             </form>
+
+            {/* Director profiles */}
+            <div className="pt-6 border-t border-zinc-800 space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-white">Meet the Directors</h3>
+                <p className="text-xs text-zinc-400 mt-1">Create and manage the director profiles shown on the About page.</p>
+              </div>
+              <form onSubmit={handleSaveDirector} className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    required
+                    value={directorForm.name}
+                    onChange={(e) => setDirectorForm({ ...directorForm, name: e.target.value })}
+                    placeholder="Director name"
+                    aria-label="Director name"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                  />
+                  <input
+                    type="text"
+                    required
+                    value={directorForm.role}
+                    onChange={(e) => setDirectorForm({ ...directorForm, role: e.target.value })}
+                    placeholder="Role or title"
+                    aria-label="Director role or title"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <input
+                  type="url"
+                  value={directorForm.image}
+                  onChange={(e) => setDirectorForm({ ...directorForm, image: e.target.value })}
+                  placeholder="Portrait image URL (optional)"
+                  aria-label="Director portrait image URL"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                />
+                <textarea
+                  rows={2}
+                  required
+                  value={directorForm.bio}
+                  onChange={(e) => setDirectorForm({ ...directorForm, bio: e.target.value })}
+                  placeholder="Short director bio"
+                  aria-label="Director bio"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                />
+                <div className="flex items-center gap-2">
+                  <button type="submit" className="btn-panda-primary text-xs py-2 px-4 font-semibold">
+                    {editingDirectorId ? 'Save Director' : 'Add Director'}
+                  </button>
+                  {editingDirectorId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingDirectorId(null);
+                        setDirectorForm({ name: '', role: '', bio: '', image: '' });
+                      }}
+                      className="px-3 py-2 text-xs text-zinc-400 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {(aboutContent?.directors || []).map((director) => (
+                  <div key={director.id} className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {director.image && <img src={director.image} alt="" className="w-12 h-12 rounded-full object-cover" />}
+                      <div className="min-w-0">
+                        <strong className="text-white text-xs block">{director.name}</strong>
+                        <span className="text-[11px] text-bamboo-400 block">{director.role}</span>
+                        <p className="text-[11px] text-zinc-400 mt-1 line-clamp-2">{director.bio}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingDirectorId(director.id);
+                          setDirectorForm({ name: director.name, role: director.role, bio: director.bio, image: director.image || '' });
+                        }}
+                        aria-label={`Edit ${director.name}`}
+                        className="p-1.5 text-zinc-400 hover:text-white"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteDirector(director.id)}
+                        aria-label={`Delete ${director.name}`}
+                        className="p-1.5 text-zinc-400 hover:text-red-400"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Gear Arsenal CRUD */}
             <div className="pt-6 border-t border-zinc-800">
@@ -928,6 +1206,135 @@ export default function AdminCMS() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* CLIENT TESTIMONIALS CMS MANAGER */}
+        {activeTab === 'testimonials' && (
+          <div className="p-6 rounded-3xl bg-[#121316] border border-zinc-800 space-y-6">
+            <div className="pb-4 border-b border-zinc-800">
+              <h2 className="text-lg font-bold text-white">Client Testimonials</h2>
+              <p className="text-xs text-zinc-400">Manage the clients and projects featured in the homepage Client Praise section.</p>
+            </div>
+            <form onSubmit={handleSaveTestimonial} className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  required
+                  value={testimonialForm.name}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
+                  placeholder="Client name"
+                  aria-label="Client name"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                />
+                <input
+                  type="text"
+                  required
+                  value={testimonialForm.role}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })}
+                  placeholder="Client or project (e.g. brand, wedding)"
+                  aria-label="Client or project"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="url"
+                  value={testimonialForm.avatar}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, avatar: e.target.value })}
+                  placeholder="Client photo URL (optional)"
+                  aria-label="Client photo URL"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                />
+                <input
+                  type="text"
+                  value={testimonialForm.date}
+                  onChange={(e) => setTestimonialForm({ ...testimonialForm, date: e.target.value })}
+                  placeholder="Date or year"
+                  aria-label="Testimonial date"
+                  className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                />
+                <label className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300">
+                  Rating
+                  <select
+                    value={testimonialForm.rating}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, rating: e.target.value })}
+                    className="ml-auto bg-zinc-900 text-white"
+                  >
+                    {[5, 4, 3, 2, 1].map(rating => <option key={rating} value={rating}>{rating} stars</option>)}
+                  </select>
+                </label>
+              </div>
+              <textarea
+                rows={3}
+                required
+                value={testimonialForm.quote}
+                onChange={(e) => setTestimonialForm({ ...testimonialForm, quote: e.target.value })}
+                placeholder="Client testimonial"
+                aria-label="Client testimonial"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+              />
+              <div className="flex items-center gap-2">
+                <button type="submit" className="btn-panda-primary text-xs py-2 px-4 font-semibold">
+                  {editingTestimonialId ? 'Save Testimonial' : 'Add Testimonial'}
+                </button>
+                {editingTestimonialId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingTestimonialId(null);
+                      setTestimonialForm({ name: '', role: '', avatar: '', quote: '', rating: 5, date: '' });
+                    }}
+                    className="px-3 py-2 text-xs text-zinc-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {testimonials.map((testimonial, index) => (
+                <article key={testimonial.id || index} className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 min-w-0">
+                    {testimonial.avatar && <img src={testimonial.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />}
+                    <div className="min-w-0">
+                      <strong className="text-white text-xs block">{testimonial.name}</strong>
+                      <span className="text-[11px] text-bamboo-400 block">{testimonial.role}{testimonial.date ? ` • ${testimonial.date}` : ''}</span>
+                      <p className="text-[11px] text-zinc-400 mt-1 line-clamp-3">{testimonial.quote}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingTestimonialId(testimonial.id);
+                        setTestimonialForm({
+                          name: testimonial.name || '',
+                          role: testimonial.role || '',
+                          avatar: testimonial.avatar || '',
+                          quote: testimonial.quote || '',
+                          rating: testimonial.rating || 5,
+                          date: testimonial.date || ''
+                        });
+                      }}
+                      aria-label={`Edit testimonial from ${testimonial.name}`}
+                      className="p-1.5 text-zinc-400 hover:text-white"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteTestimonial(testimonial.id)}
+                      aria-label={`Delete testimonial from ${testimonial.name}`}
+                      className="p-1.5 text-zinc-400 hover:text-red-400"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         )}
@@ -1250,6 +1657,27 @@ export default function AdminCMS() {
               </button>
             </div>
 
+            <form onSubmit={handleSavePricingSection} className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+              <h3 className="text-sm font-bold text-white">Production Enhancements Section Content</h3>
+              <input
+                type="text"
+                value={pricingSectionForm.addOnsTitle}
+                onChange={(e) => setPricingSectionForm({ ...pricingSectionForm, addOnsTitle: e.target.value })}
+                aria-label="Production enhancements heading"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                placeholder="Section heading"
+              />
+              <textarea
+                rows={2}
+                value={pricingSectionForm.addOnsDescription}
+                onChange={(e) => setPricingSectionForm({ ...pricingSectionForm, addOnsDescription: e.target.value })}
+                aria-label="Production enhancements description"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                placeholder="Optional section description"
+              />
+              <button type="submit" className="btn-panda-primary text-xs py-2 px-4 font-semibold">Save Section Content</button>
+            </form>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {pricingPackages.map((pkg) => (
                 <div key={pkg.id} className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3 flex flex-col justify-between">
@@ -1310,8 +1738,70 @@ export default function AdminCMS() {
             </div>
 
             {/* Optional Add-Ons Manager */}
-            <div className="pt-6 border-t border-zinc-800">
-              <h3 className="text-sm font-bold text-white mb-3">Pricing Add-on Enhancements</h3>
+            <div className="pt-6 border-t border-zinc-800 space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-white">Pricing Add-on Enhancements</h3>
+                <p className="text-xs text-zinc-400 mt-1">Create and edit the enhancements shown on the Pricing page.</p>
+              </div>
+              <form onSubmit={handleSavePricingAddOn} className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    required
+                    value={pricingAddOnForm.name}
+                    onChange={(e) => setPricingAddOnForm({ ...pricingAddOnForm, name: e.target.value })}
+                    placeholder="Enhancement name"
+                    aria-label="Enhancement name"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                  />
+                  <input
+                    type="text"
+                    required
+                    value={pricingAddOnForm.desc}
+                    onChange={(e) => setPricingAddOnForm({ ...pricingAddOnForm, desc: e.target.value })}
+                    placeholder="Description"
+                    aria-label="Enhancement description"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    required
+                    value={pricingAddOnForm.priceUSD}
+                    onChange={(e) => setPricingAddOnForm({ ...pricingAddOnForm, priceUSD: e.target.value })}
+                    placeholder="USD price"
+                    aria-label="Enhancement USD price"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                  />
+                  <input
+                    type="text"
+                    required
+                    value={pricingAddOnForm.priceTZS}
+                    onChange={(e) => setPricingAddOnForm({ ...pricingAddOnForm, priceTZS: e.target.value })}
+                    placeholder="TZS price"
+                    aria-label="Enhancement TZS price"
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <button type="submit" className="btn-panda-primary text-xs py-2 px-4 font-semibold">
+                    {editingPricingAddOnId ? 'Save Enhancement' : 'Add Enhancement'}
+                  </button>
+                  {editingPricingAddOnId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingPricingAddOnId(null);
+                        setPricingAddOnForm({ name: '', desc: '', priceUSD: '', priceTZS: '' });
+                      }}
+                      className="px-3 py-2 text-xs text-zinc-400 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {pricingAddOns?.map((addon) => (
                   <div key={addon.id} className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between">
@@ -1322,6 +1812,32 @@ export default function AdminCMS() {
                     <div className="text-right font-mono text-xs">
                       <span className="text-white block">{addon.priceUSD}</span>
                       <span className="text-bamboo-400 text-[11px] block">{addon.priceTZS}</span>
+                    </div>
+                    <div className="flex items-center gap-1 ml-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingPricingAddOnId(addon.id);
+                          setPricingAddOnForm({
+                            name: addon.name || '',
+                            desc: addon.desc || '',
+                            priceUSD: addon.priceUSD || '',
+                            priceTZS: addon.priceTZS || ''
+                          });
+                        }}
+                        aria-label={`Edit ${addon.name}`}
+                        className="p-1.5 text-zinc-400 hover:text-white"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deletePricingAddOn(addon.id)}
+                        aria-label={`Delete ${addon.name}`}
+                        className="p-1.5 text-zinc-400 hover:text-red-400"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 ))}

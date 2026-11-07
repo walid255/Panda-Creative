@@ -3,7 +3,6 @@ import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
 import { X, ChevronDown, Phone, Mail, Sun, Moon, Search } from 'lucide-react';
 import { InstagramIcon, YoutubeIcon, WhatsAppIcon } from './SocialIcons';
-import CurrencySwitcher from './CurrencySwitcher';
 
 export default function MobileMenu({ isOpen, onClose }) {
   const { currentPath, navigate } = useRouter();
@@ -46,13 +45,8 @@ export default function MobileMenu({ isOpen, onClose }) {
             </button>
           </div>
 
-          {/* Quick Actions in Mobile Menu: Currency Switcher & Dark Mode & Search */}
+          {/* Quick Actions in Mobile Menu: Dark Mode & Search */}
           <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
-              <span className="text-xs text-zinc-400 font-semibold">Pricing Currency:</span>
-              <CurrencySwitcher />
-            </div>
-
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {

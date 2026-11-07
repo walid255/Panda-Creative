@@ -28,7 +28,18 @@ export function CMSProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        return { ...initialData, ...parsed };
+        return {
+          ...initialData,
+          ...parsed,
+          homeContent: { ...initialData.homeContent, ...parsed.homeContent },
+          aboutContent: { ...initialData.aboutContent, ...parsed.aboutContent },
+          pricingContent: { ...initialData.pricingContent, ...parsed.pricingContent },
+          pricingAddOns: parsed.pricingAddOns || initialData.pricingAddOns,
+          testimonials: (parsed.testimonials || initialData.testimonials).map((testimonial, index) => ({
+            ...testimonial,
+            id: testimonial.id || `testimonial-${index + 1}`
+          }))
+        };
       }
     } catch (e) {
       console.error('Failed to parse CMS data from localStorage', e);
@@ -103,6 +114,29 @@ export function CMSProvider({ children }) {
     sessionStorage.removeItem(AUTH_KEY);
     showToast('Logged out of Admin CMS', 'info');
   };
+
+  useEffect(() => {
+    if (!isAdminLoggedIn) return undefined;
+
+    let inactivityTimer;
+    const resetInactivityTimer = () => {
+      window.clearTimeout(inactivityTimer);
+      inactivityTimer = window.setTimeout(adminLogout, 15 * 60 * 1000);
+    };
+    const activityEvents = ['pointerdown', 'keydown', 'mousemove', 'scroll', 'touchstart'];
+
+    activityEvents.forEach(eventName => {
+      document.addEventListener(eventName, resetInactivityTimer, { passive: true });
+    });
+    resetInactivityTimer();
+
+    return () => {
+      window.clearTimeout(inactivityTimer);
+      activityEvents.forEach(eventName => {
+        document.removeEventListener(eventName, resetInactivityTimer);
+      });
+    };
+  }, [isAdminLoggedIn]);
 
   // 5. UTM Tracker
   const [utmParams] = useState(() => {
@@ -257,6 +291,42 @@ export function CMSProvider({ children }) {
     showToast('Equipment removed');
   };
 
+  const addDirector = (director) => {
+    const newDirector = { ...director, id: `director-${Date.now()}` };
+    setData(prev => ({
+      ...prev,
+      aboutContent: {
+        ...prev.aboutContent,
+        directors: [...(prev.aboutContent.directors || []), newDirector]
+      }
+    }));
+    showToast('Director profile added');
+  };
+
+  const updateDirector = (id, updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      aboutContent: {
+        ...prev.aboutContent,
+        directors: (prev.aboutContent.directors || []).map(director =>
+          director.id === id ? { ...director, ...updatedFields } : director
+        )
+      }
+    }));
+    showToast('Director profile updated');
+  };
+
+  const deleteDirector = (id) => {
+    setData(prev => ({
+      ...prev,
+      aboutContent: {
+        ...prev.aboutContent,
+        directors: (prev.aboutContent.directors || []).filter(director => director.id !== id)
+      }
+    }));
+    showToast('Director profile removed', 'info');
+  };
+
   // PORTFOLIO SHOWCASE CRUD
   const addPortfolioItem = (item) => {
     const newItem = {
@@ -390,6 +460,41 @@ export function CMSProvider({ children }) {
       pricingAddOns: (prev.pricingAddOns || []).filter(a => a.id !== id)
     }));
     showToast('Production add-on removed');
+  };
+
+  const updatePricingContent = (newContent) => {
+    setData(prev => ({
+      ...prev,
+      pricingContent: { ...prev.pricingContent, ...newContent }
+    }));
+    showToast('Pricing section content updated');
+  };
+
+  const addTestimonial = (testimonial) => {
+    const newTestimonial = { ...testimonial, id: `testimonial-${Date.now()}` };
+    setData(prev => ({
+      ...prev,
+      testimonials: [...(prev.testimonials || []), newTestimonial]
+    }));
+    showToast('Client testimonial added');
+  };
+
+  const updateTestimonial = (id, updatedFields) => {
+    setData(prev => ({
+      ...prev,
+      testimonials: (prev.testimonials || []).map(testimonial =>
+        testimonial.id === id ? { ...testimonial, ...updatedFields } : testimonial
+      )
+    }));
+    showToast('Client testimonial updated');
+  };
+
+  const deleteTestimonial = (id) => {
+    setData(prev => ({
+      ...prev,
+      testimonials: (prev.testimonials || []).filter(testimonial => testimonial.id !== id)
+    }));
+    showToast('Client testimonial removed', 'info');
   };
 
   // GALLERY CRUD (Fine-Art Photos and YouTube Videos)
@@ -596,6 +701,9 @@ export function CMSProvider({ children }) {
         addGearItem,
         updateGearItem,
         deleteGearItem,
+        addDirector,
+        updateDirector,
+        deleteDirector,
         addPortfolioItem,
         updatePortfolioItem,
         deletePortfolioItem,
@@ -608,6 +716,10 @@ export function CMSProvider({ children }) {
         addPricingAddOn,
         updatePricingAddOn,
         deletePricingAddOn,
+        updatePricingContent,
+        addTestimonial,
+        updateTestimonial,
+        deleteTestimonial,
         addGalleryItem,
         updateGalleryItem,
         deleteGalleryItem,

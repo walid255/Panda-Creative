@@ -12,7 +12,6 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import CopyButton from '../components/CopyButton';
-import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function Contact() {
   const { navigate } = useRouter();
@@ -86,7 +85,7 @@ export default function Contact() {
                   <strong className="block text-zinc-900 dark:text-white">Arts District Loft Studio</strong>
                   <span>{siteSettings.address}</span>
                   <div className="mt-1">
-                    <CopyButton text={siteSettings.address} label="Copy Address" />
+                    <CopyButton text={siteSettings.address} label="Copy Address" iconOnly />
                   </div>
                 </div>
               </div>
@@ -165,7 +164,6 @@ export default function Contact() {
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-white font-serif">
               Shoot Reservation Form
             </h2>
-            <CurrencySwitcher />
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-8">
             Please fill in your project details. We will prepare an exact proposal in your preferred currency ({currency}).
