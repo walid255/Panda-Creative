@@ -31,6 +31,11 @@ export const initialData = {
     secondaryCtaText: "Watch 4K Showreel",
     showreelYoutubeId: "LXb3EKWsInQ",
     showreelTitle: "Panda Creative 4K Cinematic Master Showreel",
+    servicesSectionTitle: "Our Core Creative Services",
+    servicesSectionDescription: "From intimate weddings to large commercial campaigns, we bring unmatched visual discipline.",
+    testimonialsEyebrow: "Client Praise",
+    testimonialsTitle: "Trusted by Couples & Global Brands",
+    testimonialsDescription: "",
     stats: [
       { id: "s1", value: "650+", label: "Shoots Completed" },
       { id: "s2", value: "10+", label: "Years Experience" },
@@ -57,7 +62,8 @@ export const initialData = {
       { id: "g4", name: "DJI Inspire 3 Drone", role: "FAA Licensed Aerial Cinematography", desc: "Full-frame 8K Zenmuse X9-8K camera system for sweeping cinematic vistas." },
       { id: "g5", name: "Cooke & Sony G-Master Primes", role: "Cine Optics", desc: "T1.4 – T2.0 fast aperture lenses providing buttery bokeh and rich skin tones." },
       { id: "g6", name: "Sennheiser & Deity Pro Audio", role: "Sound Recording", desc: "32-bit float broadcast wireless recording for pristine wedding vows and commercial voiceovers." }
-    ]
+    ],
+    directors: []
   },
 
   socialLinks: [
@@ -607,6 +613,11 @@ export const initialData = {
     }
   ],
 
+  pricingContent: {
+    addOnsTitle: "Optional Production Enhancements (USD & TZS)",
+    addOnsDescription: ""
+  },
+
   faqs: [
     {
       question: "How do you deliver our final videos and photographs?",
@@ -640,6 +651,7 @@ export const initialData = {
 
   testimonials: [
     {
+      id: "testimonial-1",
       name: "Sophia & Marcus Vance",
       role: "Lake Como Destination Wedding",
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
@@ -648,6 +660,7 @@ export const initialData = {
       date: "October 2026"
     },
     {
+      id: "testimonial-2",
       name: "Julian Rivera",
       role: "Creative Director, Apex Automotive",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
@@ -656,6 +669,7 @@ export const initialData = {
       date: "September 2026"
     },
     {
+      id: "testimonial-3",
       name: "Elena Rostova",
       role: "Fashion Editor, Vogue Runway Feature",
       avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80",

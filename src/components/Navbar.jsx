@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
 import { Sun, Moon, Search, Menu, ChevronDown, Sparkles, FolderKanban, Users } from 'lucide-react';
-import CurrencySwitcher from './CurrencySwitcher';
 
 export default function Navbar({ onOpenMobileMenu }) {
   const { currentPath, navigate } = useRouter();
@@ -162,14 +161,8 @@ export default function Navbar({ onOpenMobileMenu }) {
           </button>
         </nav>
 
-        {/* Right Controls: Currency Switcher, Search, Theme Toggle, Book CTA */}
+        {/* Right Controls: Search, Theme Toggle, Book CTA */}
         <div className="flex items-center gap-2 sm:gap-3">
-          
-          {/* Currency Switcher: USD and TZS only */}
-          <div className="hidden lg:block">
-            <CurrencySwitcher />
-          </div>
-
           <button
             onClick={openSearch}
             type="button"

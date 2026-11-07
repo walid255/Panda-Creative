@@ -258,7 +258,7 @@ export default function Footer() {
         {/* Footer Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
           <div>
-            &copy; {new Date().getFullYear()} {siteSettings.name}. All rights reserved. Crafted with React, Tailwind CSS &amp; Cloudflare.
+            &copy; {new Date().getFullYear()} {siteSettings.name}. All rights reserved.
           </div>
 
           {/* CRITICAL USER REQUIREMENT:

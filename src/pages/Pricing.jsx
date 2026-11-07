@@ -1,13 +1,13 @@
 import React from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
-import { Check, Sparkles, Printer, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Check, Sparkles, Printer, ShieldCheck } from 'lucide-react';
 import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function Pricing() {
   const { navigate } = useRouter();
-  const { data, currency, formatPrice } = useCMS();
-  const { pricingPackages, pricingAddOns } = data;
+  const { data, currency } = useCMS();
+  const { pricingPackages, pricingAddOns, pricingContent } = data;
 
   return (
     <div className="w-full py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -136,8 +136,13 @@ export default function Pricing() {
       {/* Production Add-ons Section */}
       <section className="mt-20 pt-16 border-t border-zinc-200 dark:border-zinc-800">
         <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-serif mb-6 text-center">
-          Optional Production Enhancements (USD &amp; TZS)
+          {pricingContent?.addOnsTitle || 'Optional Production Enhancements (USD & TZS)'}
         </h3>
+        {pricingContent?.addOnsDescription && (
+          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-2 mb-6 text-center max-w-2xl mx-auto">
+            {pricingContent.addOnsDescription}
+          </p>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
           {(pricingAddOns || []).map((addon) => {

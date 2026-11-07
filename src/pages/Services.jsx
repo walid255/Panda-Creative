@@ -2,7 +2,6 @@ import React from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
 import { Film, Camera, HeartHandshake, Plane, Disc, Sliders, CheckCircle2, Clock, DollarSign, Sparkles } from 'lucide-react';
-import CurrencySwitcher from '../components/CurrencySwitcher';
 
 export default function Services() {
   const { navigate } = useRouter();
@@ -68,11 +67,6 @@ export default function Services() {
           From multi-day luxury destination weddings to global commercial campaigns, explore our complete suite of cinema and photographic disciplines.
         </p>
 
-        {/* Currency Switcher */}
-        <div className="mt-6 inline-flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold pl-2">Displaying in:</span>
-          <CurrencySwitcher />
-        </div>
       </div>
 
       {/* Services List */}

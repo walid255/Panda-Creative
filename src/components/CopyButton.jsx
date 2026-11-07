@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { useCMS } from '../context/CMSContext';
 
-export default function CopyButton({ text, label = 'Copy', className = '' }) {
+export default function CopyButton({ text, label = 'Copy', className = '', iconOnly = false }) {
   const [copied, setCopied] = useState(false);
   const { showToast } = useCMS();
 
@@ -22,7 +22,8 @@ export default function CopyButton({ text, label = 'Copy', className = '' }) {
     <button
       onClick={handleCopy}
       type="button"
-      title={`Copy ${text}`}
+      title={label}
+      aria-label={copied ? 'Copied to clipboard' : label}
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200 ${
         copied
           ? 'bg-bamboo-500 text-white'
@@ -30,7 +31,7 @@ export default function CopyButton({ text, label = 'Copy', className = '' }) {
       } ${className}`}
     >
       {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
-      <span>{copied ? 'Copied!' : label}</span>
+      {!iconOnly && <span>{copied ? 'Copied!' : label}</span>}
     </button>
   );
 }
