@@ -44,7 +44,7 @@ export default function Portfolio() {
         <div className="mt-4 md:mt-0 flex items-center gap-2">
           <button
             onClick={() => navigate('/contacts')}
-            className="btn-panda-primary text-xs px-5 py-2.5 uppercase tracking-wider font-bold"
+            className="hidden md:inline-flex btn-panda-primary text-xs px-5 py-2.5 uppercase tracking-wider font-bold"
           >
             Book Shoot
           </button>
