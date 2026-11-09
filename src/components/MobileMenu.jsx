@@ -33,7 +33,7 @@ export default function MobileMenu({ isOpen, onClose }) {
         className="w-full max-w-xs h-full bg-[#0c0d0f] text-white p-6 flex flex-col justify-between shadow-2xl border-l border-zinc-800 animate-slide-up overflow-y-auto"
         onClick={(event) => {
           event.stopPropagation();
-          if (!event.target.closest('[data-about-menu]')) {
+          if (!event.target.closest('[data-about-toggle]')) {
             setAboutSubmenuOpen(false);
           }
         }}
@@ -103,6 +103,7 @@ export default function MobileMenu({ isOpen, onClose }) {
             {/* About Us + Dropdown/Accordion for Portfolio */}
             <div data-about-menu className="rounded-xl overflow-hidden bg-zinc-900/50 border border-zinc-800/80">
               <button
+                data-about-toggle
                 onClick={() => setAboutSubmenuOpen(!aboutSubmenuOpen)}
                 className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white"
                 aria-expanded={aboutSubmenuOpen}
@@ -169,6 +170,12 @@ export default function MobileMenu({ isOpen, onClose }) {
               Contacts &amp; Booking
             </button>
           </nav>
+          <button
+            onClick={() => handleNav('/contacts')}
+            className="w-full mt-4 btn-panda-primary text-sm uppercase tracking-wider font-bold"
+          >
+            Book Shoot
+          </button>
         </div>
 
         {/* Bottom Contact & Social Links */}
