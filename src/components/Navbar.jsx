@@ -167,7 +167,7 @@ export default function Navbar({ onOpenMobileMenu }) {
             onClick={openSearch}
             type="button"
             aria-label="Search website"
-            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800/70 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-full transition-all duration-200 border border-zinc-200 dark:border-zinc-700/50"
+            className="hidden md:flex items-center gap-2 px-3 py-2 text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800/70 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-full transition-all duration-200 border border-zinc-200 dark:border-zinc-700/50"
           >
             <Search className="w-3.5 h-3.5" />
             <span className="hidden xl:inline">Search</span>
@@ -178,7 +178,7 @@ export default function Navbar({ onOpenMobileMenu }) {
             onClick={toggleDarkMode}
             type="button"
             aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="p-2.5 rounded-full text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800/70 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all duration-200 border border-zinc-200 dark:border-zinc-700/50"
+            className="hidden md:inline-flex p-2.5 rounded-full text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-zinc-800/70 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all duration-200 border border-zinc-200 dark:border-zinc-700/50"
           >
             {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-zinc-700" />}
           </button>
