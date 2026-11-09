@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from '../context/RouterContext';
 import { useCMS } from '../context/CMSContext';
 import { X, ChevronDown, Phone, Mail, Sun, Moon, Search } from 'lucide-react';
@@ -8,11 +8,16 @@ export default function MobileMenu({ isOpen, onClose }) {
   const { currentPath, navigate } = useRouter();
   const { data, darkMode, toggleDarkMode, openSearch } = useCMS();
   const { siteSettings, socialLinks } = data;
-  const [aboutSubmenuOpen, setAboutSubmenuOpen] = useState(true);
+  const [aboutSubmenuOpen, setAboutSubmenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) setAboutSubmenuOpen(false);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleNav = (path) => {
+    setAboutSubmenuOpen(false);
     navigate(path);
     onClose();
   };
@@ -20,9 +25,18 @@ export default function MobileMenu({ isOpen, onClose }) {
   const isActive = (path) => currentPath === path;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-md animate-fade-in md:hidden">
+    <div
+      className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-md animate-fade-in md:hidden"
+      onClick={onClose}
+    >
       <div 
         className="w-full max-w-xs h-full bg-[#0c0d0f] text-white p-6 flex flex-col justify-between shadow-2xl border-l border-zinc-800 animate-slide-up overflow-y-auto"
+        onClick={(event) => {
+          event.stopPropagation();
+          if (!event.target.closest('[data-about-toggle]')) {
+            setAboutSubmenuOpen(false);
+          }
+        }}
         role="dialog"
         aria-modal="true"
         aria-label="Mobile Navigation Menu"
@@ -50,6 +64,7 @@ export default function MobileMenu({ isOpen, onClose }) {
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
+                  setAboutSubmenuOpen(false);
                   onClose();
                   openSearch();
                 }}
@@ -59,7 +74,13 @@ export default function MobileMenu({ isOpen, onClose }) {
                 <span>Search</span>
               </button>
               <button
-                onClick={toggleDarkMode}
+                type="button"
+                aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                onClick={() => {
+                  setAboutSubmenuOpen(false);
+                  toggleDarkMode();
+                  onClose();
+                }}
                 className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white"
               >
                 {darkMode ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5" />}
@@ -80,8 +101,9 @@ export default function MobileMenu({ isOpen, onClose }) {
             </button>
 
             {/* About Us + Dropdown/Accordion for Portfolio */}
-            <div className="rounded-xl overflow-hidden bg-zinc-900/50 border border-zinc-800/80">
+            <div data-about-menu className="rounded-xl overflow-hidden bg-zinc-900/50 border border-zinc-800/80">
               <button
+                data-about-toggle
                 onClick={() => setAboutSubmenuOpen(!aboutSubmenuOpen)}
                 className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-zinc-300 hover:text-white"
                 aria-expanded={aboutSubmenuOpen}
@@ -148,6 +170,12 @@ export default function MobileMenu({ isOpen, onClose }) {
               Contacts &amp; Booking
             </button>
           </nav>
+          <button
+            onClick={() => handleNav('/contacts')}
+            className="w-full mt-4 btn-panda-primary text-sm uppercase tracking-wider font-bold"
+          >
+            Book Shoot
+          </button>
         </div>
 
         {/* Bottom Contact & Social Links */}

@@ -100,7 +100,7 @@ export default function Contact() {
                     {siteSettings.phone}
                   </a>
                   <div className="mt-1">
-                    <CopyButton text={siteSettings.phone} label="Copy Phone" />
+                    <CopyButton text={siteSettings.phone} label="Copy Phone" iconOnly />
                   </div>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function Contact() {
                     {siteSettings.email}
                   </a>
                   <div className="mt-1">
-                    <CopyButton text={siteSettings.email} label="Copy Email" />
+                    <CopyButton text={siteSettings.email} label="Copy Email" iconOnly />
                   </div>
                 </div>
               </div>

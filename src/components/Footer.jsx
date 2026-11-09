@@ -103,14 +103,14 @@ export default function Footer() {
                 <a href={`tel:${siteSettings.phone.replace(/[^0-9+]/g, '')}`} className="hover:text-white transition-colors">
                   {siteSettings.phone}
                 </a>
-                <CopyButton text={siteSettings.phone} label="Copy" className="ml-1" />
+                <CopyButton text={siteSettings.phone} label="Copy Phone" className="ml-1" iconOnly />
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-bamboo-400 shrink-0" />
                 <a href={`mailto:${siteSettings.email}`} className="hover:text-white transition-colors">
                   {siteSettings.email}
                 </a>
-                <CopyButton text={siteSettings.email} label="Copy" className="ml-1" />
+                <CopyButton text={siteSettings.email} label="Copy Email" className="ml-1" iconOnly />
               </div>
             </div>
 

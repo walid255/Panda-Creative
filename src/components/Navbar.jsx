@@ -185,7 +185,7 @@ export default function Navbar({ onOpenMobileMenu }) {
 
           <button
             onClick={() => navigate('/contacts')}
-            className="hidden sm:inline-flex btn-panda-primary text-xs tracking-wider uppercase font-semibold"
+            className="hidden md:inline-flex btn-panda-primary text-xs tracking-wider uppercase font-semibold"
           >
             Book Shoot
           </button>
