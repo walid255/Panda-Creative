@@ -1,6 +1,6 @@
 # Panda Creative - Photo & Cinematography PWA with CMS Admin Panel
 
-An award-winning, luxury Photographer and Videographer Progressive Web App (PWA) with a full client-side CMS Admin Panel, built with **React**, **HTML5**, **Tailwind CSS**, and optimized for **Cloudflare Pages** hosting.
+An award-winning, luxury Photographer and Videographer Progressive Web App (PWA) with a Cloudflare D1-backed CMS Admin Panel, built with **React**, **HTML5**, **Tailwind CSS**, and optimized for **Cloudflare Pages** hosting.
 
 ---
 
@@ -41,7 +41,8 @@ An award-winning, luxury Photographer and Videographer Progressive Web App (PWA)
 ### 2. Admin CMS Panel (`/admin`)
 > **Crucial Rule Implemented**: The admin login panel is located **ONLY in the footer** (discrete lock icon link in the bottom copyright bar) and nowhere in the main navigation.
 - **Password Visibility Toggle**: Show/hide password eye icon toggle on login.
-- **Default Passcode**: `panda` (can be changed anytime in Site Settings).
+- **Shared Content**: Site content is loaded from and saved to Cloudflare D1 so admin changes appear for all visitors, not just the current browser.
+- **Secure Admin Session**: Admin sign-in uses an HttpOnly, SameSite cookie. The passcode is stored as a Cloudflare secret, not in public site data.
 - **Dashboard Overview**: Metrics on total photos, YouTube videos, client inquiries, and newsletter VIPs.
 - **Gallery Manager**: Add, edit, or delete fine-art photos and YouTube cinema films.
 - **Social Networks Manager**: Fully manage profile links, handles, follower counts, and visibility for **Instagram, YouTube, TikTok, Facebook, Twitter/X, Pinterest, LinkedIn, and WhatsApp**.
@@ -110,3 +111,15 @@ Outputs static files to `dist/`, fully compiled, minified, and ready for instant
 2. Set **Build command**: `npm run build`
 3. Set **Build output directory**: `dist`
 4. Deploy! Cloudflare Pages will automatically respect `_redirects` for SPA routing and `_headers` for Force HTTPS and security headers.
+
+### Configure shared CMS storage
+The CMS API is implemented as Cloudflare Pages Functions and requires a D1 database binding before global edits can be saved:
+
+1. Create a D1 database in the Cloudflare dashboard.
+2. In the D1 console, run the SQL in `migrations/0001_create_cms_content.sql`.
+3. In the Pages project, open **Settings → Functions → D1 database bindings** and bind the database using the variable name `DB`.
+4. In **Settings → Variables and Secrets**, add the secrets `ADMIN_PASSWORD` (your chosen admin passcode) and `SESSION_SECRET` (a long random secret, at least 32 characters).
+5. Redeploy the Pages project so Functions receive the binding and secrets.
+6. Sign in to `/admin` from the browser whose existing local CMS content you want to keep. If D1 is empty, the first signed-in admin save seeds the shared content. Subsequent public visits load that shared data.
+
+The public CMS API does not expose inquiries or newsletter subscribers; those are returned only to an authenticated admin. During local Vite development, the CMS retains its browser-local preview behavior.

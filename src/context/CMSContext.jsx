@@ -4,9 +4,26 @@ import { initialData } from '../data/initialData';
 const CMSContext = createContext(null);
 
 const STORAGE_KEY = 'panda_creative_cms_data_v2';
-const AUTH_KEY = 'panda_creative_admin_auth_v1';
 const COOKIE_KEY = 'panda_creative_cookie_consent_v1';
 const CURRENCY_KEY = 'panda_creative_currency_v1';
+
+const normalizeCmsData = (source) => {
+  const normalized = {
+    ...initialData,
+    ...source,
+    homeContent: { ...initialData.homeContent, ...source.homeContent },
+    aboutContent: { ...initialData.aboutContent, ...source.aboutContent },
+    pricingContent: { ...initialData.pricingContent, ...source.pricingContent },
+    pricingAddOns: source.pricingAddOns || initialData.pricingAddOns,
+    testimonials: (source.testimonials || initialData.testimonials).map((testimonial, index) => ({
+      ...testimonial,
+      id: testimonial.id || `testimonial-${index + 1}`
+    }))
+  };
+  normalized.siteSettings = { ...normalized.siteSettings };
+  delete normalized.siteSettings.adminPassword;
+  return normalized;
+};
 
 // Helper to extract YouTube ID from diverse formats
 export function extractYouTubeId(urlOrId) {
@@ -27,25 +44,15 @@ export function CMSProvider({ children }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          ...initialData,
-          ...parsed,
-          homeContent: { ...initialData.homeContent, ...parsed.homeContent },
-          aboutContent: { ...initialData.aboutContent, ...parsed.aboutContent },
-          pricingContent: { ...initialData.pricingContent, ...parsed.pricingContent },
-          pricingAddOns: parsed.pricingAddOns || initialData.pricingAddOns,
-          testimonials: (parsed.testimonials || initialData.testimonials).map((testimonial, index) => ({
-            ...testimonial,
-            id: testimonial.id || `testimonial-${index + 1}`
-          }))
-        };
+        return normalizeCmsData(JSON.parse(saved));
       }
     } catch (e) {
       console.error('Failed to parse CMS data from localStorage', e);
     }
     return initialData;
   });
+  const [isCmsReady, setIsCmsReady] = useState(false);
+  const [isGlobalCmsAvailable, setIsGlobalCmsAvailable] = useState(false);
 
   useEffect(() => {
     try {
@@ -92,28 +99,7 @@ export function CMSProvider({ children }) {
   const toggleDarkMode = () => setDarkMode(prev => !prev);
 
   // 4. Admin Authentication
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    return sessionStorage.getItem(AUTH_KEY) === 'true';
-  });
-
-  const adminLogin = (password) => {
-    const validPassword = data.siteSettings.adminPassword || 'panda';
-    if (password === validPassword) {
-      setIsAdminLoggedIn(true);
-      sessionStorage.setItem(AUTH_KEY, 'true');
-      showToast('Welcome back, Admin!', 'success');
-      return true;
-    } else {
-      showToast('Incorrect passcode. Default demo is "panda"', 'error');
-      return false;
-    }
-  };
-
-  const adminLogout = () => {
-    setIsAdminLoggedIn(false);
-    sessionStorage.removeItem(AUTH_KEY);
-    showToast('Logged out of Admin CMS', 'info');
-  };
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   useEffect(() => {
     if (!isAdminLoggedIn) return undefined;
@@ -170,6 +156,152 @@ export function CMSProvider({ children }) {
 
   const removeToast = (id) => {
     setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadGlobalCms = async () => {
+      let authenticated = false;
+      let loadError = null;
+      try {
+        const sessionResponse = await fetch('/api/auth/session', { credentials: 'same-origin' });
+        if (sessionResponse.ok) {
+          const session = await sessionResponse.json();
+          authenticated = session.authenticated === true;
+        } else if (sessionResponse.status !== 404) {
+          throw new Error('Could not verify the admin session');
+        }
+
+        const cmsResponse = await fetch('/api/cms', { credentials: 'same-origin' });
+        const result = await cmsResponse.json();
+        if (!cmsResponse.ok) {
+          throw new Error(result.error || 'Could not load global CMS data');
+        }
+        setIsGlobalCmsAvailable(true);
+        if (result.data) {
+          setData(normalizeCmsData(result.data));
+        }
+      } catch (error) {
+        loadError = error;
+        if (!import.meta.env.DEV) {
+          console.error('Failed to load shared CMS data', error);
+        }
+      }
+
+      if (cancelled) return;
+      setIsAdminLoggedIn(authenticated);
+      setIsCmsReady(true);
+      if (loadError && !import.meta.env.DEV) {
+        showToast(`${loadError.message}. Admin changes are not syncing globally.`, 'error');
+      }
+    };
+
+    loadGlobalCms();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isAdminLoggedIn || !isCmsReady) return undefined;
+    if (import.meta.env.DEV && !isGlobalCmsAvailable) return undefined;
+
+    const syncTimer = window.setTimeout(async () => {
+      try {
+        const response = await fetch('/api/cms', {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (response.status === 401) {
+          setIsAdminLoggedIn(false);
+          showToast('Admin session expired. Sign in again to sync changes.', 'error');
+          return;
+        }
+        if (!response.ok) {
+          throw new Error(result.error || 'Could not sync CMS changes globally');
+        }
+        showToast('CMS changes saved globally', 'success');
+      } catch (error) {
+        if (!import.meta.env.DEV) {
+          console.error('Failed to sync shared CMS data', error);
+        }
+        showToast(`${error.message}. Changes are only saved in this browser.`, 'error');
+      }
+    }, 500);
+
+    return () => window.clearTimeout(syncTimer);
+  }, [data, isAdminLoggedIn, isCmsReady, isGlobalCmsAvailable]);
+
+  const adminLogin = async (password) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        if (!import.meta.env.DEV) throw new Error('Admin API is unavailable');
+        if (password !== 'panda' && password !== data.siteSettings.adminPassword) {
+          showToast('Incorrect local demo passcode', 'error');
+          return false;
+        }
+        setIsAdminLoggedIn(true);
+        setIsCmsReady(true);
+        showToast('Signed in for local preview only; changes are not shared', 'info');
+        return true;
+      }
+
+      if (!response.ok) {
+        showToast(result.error || 'Admin sign-in failed', 'error');
+        return false;
+      }
+
+      setIsGlobalCmsAvailable(true);
+      const cmsResponse = await fetch('/api/cms', { credentials: 'same-origin' });
+      if (cmsResponse.ok) {
+        const cmsResult = await cmsResponse.json();
+        if (cmsResult.data) setData(normalizeCmsData(cmsResult.data));
+      } else {
+        const cmsResult = await cmsResponse.json();
+        showToast(cmsResult.error || 'Could not load global CMS data', 'error');
+      }
+      setIsAdminLoggedIn(true);
+      setIsCmsReady(true);
+      showToast('Welcome back, Admin!', 'success');
+      return true;
+    } catch (error) {
+      showToast(`${error.message}. Check the Cloudflare CMS configuration.`, 'error');
+      return false;
+    }
+  };
+
+  const adminLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      });
+      if (!response.ok && !import.meta.env.DEV) {
+        throw new Error('Could not end the server admin session');
+      }
+    } catch (error) {
+      if (!import.meta.env.DEV) {
+        console.error('Failed to end admin session', error);
+        showToast(error.message, 'error');
+      }
+    } finally {
+      setIsAdminLoggedIn(false);
+      showToast('Logged out of Admin CMS', 'info');
+    }
   };
 
   // 7. Confirmation Modal State
@@ -649,7 +781,7 @@ export function CMSProvider({ children }) {
         showToast('Invalid backup format', 'error');
         return false;
       }
-      setData({ ...initialData, ...parsed });
+      setData(normalizeCmsData(parsed));
       showToast('CMS Data successfully restored from backup!');
       return true;
     } catch {
