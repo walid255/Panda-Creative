@@ -82,7 +82,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-4">
             <button
               onClick={() => navigate('/contacts')}
-              className="btn-panda-primary text-sm sm:text-base px-8 py-4 uppercase tracking-wider font-semibold group shadow-xl"
+              className="hidden lg:inline-flex btn-panda-primary text-sm sm:text-base px-8 py-4 uppercase tracking-wider font-semibold group shadow-xl"
             >
               <span>{hc.primaryCtaText || "Reserve Shoot Date"}</span>
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

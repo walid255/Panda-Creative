@@ -26,7 +26,7 @@ export default function MobileMenu({ isOpen, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-md animate-fade-in md:hidden"
+      className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-md animate-fade-in lg:hidden"
       onClick={onClose}
     >
       <div 

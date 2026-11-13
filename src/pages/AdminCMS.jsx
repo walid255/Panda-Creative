@@ -438,7 +438,7 @@ export default function AdminCMS() {
               Panda Studio CMS Access
             </h1>
             <p className="text-xs text-zinc-400">
-              Footer Admin Panel. Manage homepage, about us, gallery, services, portfolio, and pricing (USD &amp; TZS).
+              Sign in with the admin passcode configured for this Cloudflare Pages deployment.
             </p>
           </div>
 
@@ -467,7 +467,7 @@ export default function AdminCMS() {
                 </button>
               </div>
               <span className="text-[11px] text-zinc-500 mt-1.5 block">
-                Default demo password: <strong className="text-bamboo-400">panda</strong> (customizable in Site Settings)
+                The passcode is stored securely in Cloudflare and is never included in public site data.
               </span>
             </div>
 
@@ -2099,16 +2099,6 @@ export default function AdminCMS() {
                   value={settingsForm.metaDescription}
                   onChange={(e) => setSettingsForm({ ...settingsForm, metaDescription: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Admin Passcode</label>
-                <input
-                  type="text"
-                  value={settingsForm.adminPassword}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, adminPassword: e.target.value })}
-                  className="w-full max-w-xs px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-mono"
                 />
               </div>
 

@@ -66,7 +66,7 @@ export default function FloatingContact() {
               navigate('/contacts');
               setIsOpen(false);
             }}
-            className="flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold text-bamboo-400 hover:text-white hover:bg-bamboo-500/20 transition-colors text-left"
+            className="hidden lg:flex items-center gap-2.5 p-2 rounded-xl text-xs font-semibold text-bamboo-400 hover:text-white hover:bg-bamboo-500/20 transition-colors text-left"
           >
             <div className="p-1.5 rounded-lg bg-bamboo-500/20 text-bamboo-400">
               <Calendar className="w-3.5 h-3.5" />
@@ -84,7 +84,8 @@ export default function FloatingContact() {
         className="flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-bamboo-500 to-emerald-600 text-white font-medium text-xs sm:text-sm shadow-xl hover:shadow-bamboo-500/30 transition-all duration-300 hover:scale-105 active:scale-95 border border-bamboo-400/40"
       >
         <MessageSquare className="w-4 h-4 animate-pulse-subtle" />
-        <span className="hidden sm:inline">Inquire / Book</span>
+        <span className="lg:hidden">Quick Contact</span>
+        <span className="hidden lg:inline">Inquire / Book</span>
       </button>
     </div>
   );

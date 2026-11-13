@@ -17,7 +17,6 @@ export const initialData = {
     metaDescription: "Award-winning photo and cinematography studio specializing in luxury weddings, brand commercials, fashion editorial, and 4K/8K YouTube cinematic films.",
     googleSearchConsole: "google4e92a83bd0a39a9c",
     canonicalDomain: "https://pandacreative.studio",
-    adminPassword: "panda" // Default password for CMS demo (can be changed in settings)
   },
 
   // Homepage CMS Content

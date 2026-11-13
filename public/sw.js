@@ -1,4 +1,4 @@
-const CACHE_NAME = 'panda-creative-v1.0.0';
+const CACHE_NAME = 'panda-creative-v1.0.2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -43,6 +43,11 @@ self.addEventListener('fetch', (event) => {
   
   // Skip non-GET requests and chrome extensions
   if (request.method !== 'GET' || !request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  if (new URL(request.url).pathname.startsWith('/api/')) {
+    event.respondWith(fetch(request));
     return;
   }
 
